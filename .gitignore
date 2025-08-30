@@ -1,0 +1,109 @@
+# =========================================
+# Ionic + Angular + Capacitor (Android/iOS)
+# =========================================
+
+# Logs y temporales
+*~
+*.sw[mnpcod]
+*.log
+log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Cachés / tmp
+.tmp/
+.tmp
+.sourcemaps/
+.sass-cache/
+.cache
+.parcel-cache
+.nyc_output
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.webpack/
+.eslintcache
+.stylelintcache
+node_modules/.cache/
+
+# Angular / Nx / Bazel
+.angular/
+.angular/cache
+.nx
+.nx/cache
+/bazel-out
+/out-tsc
+/tmp
+/dist
+/coverage
+*.lcov
+
+# Compilados / build de la app web
+/www
+/dist
+/build
+/out
+
+# Plataformas móviles (Capacitor/Cordova)
+ios/
+android/
+platforms/
+plugins/
+plugins/android.json
+plugins/ios.json
+hooks/
+
+# Dependencias
+/node_modules
+bower_components/
+jspm_packages/
+web_modules/
+
+# TypeScript
+*.tsbuildinfo
+
+# Ambiente (dotenv)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs / editores
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# VSCode (mantén archivos de workspace si los usas)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# E2E salidas (si aplican proyectos antiguos)
+e2e/*.js
+e2e/*.map
+
+# Varias herramientas
+connect.lock
+connect.lock/
+libpeerconnection.log
+testem.log
+typings/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+$RECYCLE.BIN/
+UserInterfaceState.xcuserstate
