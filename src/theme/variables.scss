@@ -1,2 +1,138 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
+/* src/theme/variables.scss */
+/* Fuente Minty (opcional) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+/* =========================
+   THEME CLARO (Minty)
+   ========================= */
+:root {
+  /* Paleta Minty */
+  --bs-primary:   #78c2ad;
+  --bs-secondary: #f3969a;
+  --bs-success:   #56cc9d;
+  --bs-info:      #6cc3d5;
+  --bs-warning:   #ffce67;
+  --bs-danger:    #ff7851;
+  --bs-light:     #f8f9fa;
+  --bs-dark:      #343a40;
+
+  /* Texto base, headings y fondo */
+  --ion-background-color: #ffffff;
+  --ion-text-color: #888888;          /* body text */
+  --heading-color: #5a5a5a;           /* h1–h6 */
+  --link-color: #78c2ad;              /* a */
+  --link-color-hover: #609b8a;
+
+  /* Tipografía */
+  --ion-font-family: 'Montserrat', -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Mapear a colores de Ionic */
+  --ion-color-primary: var(--bs-primary);
+  --ion-color-primary-rgb: 120,194,173;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #68aa97;
+  --ion-color-primary-tint: #89c8b5;
+
+  --ion-color-secondary: var(--bs-secondary);
+  --ion-color-secondary-rgb: 243,150,154;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255,255,255;
+  --ion-color-secondary-shade: #d68488;
+  --ion-color-secondary-tint: #f4a4a7;
+
+  --ion-color-success: var(--bs-success);
+  --ion-color-success-rgb: 86,204,157;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255,255,255;
+  --ion-color-success-shade: #4caf8a;
+  --ion-color-success-tint: #68d2ac;
+
+  --ion-color-info: var(--bs-info);
+  --ion-color-info-rgb: 108,195,213;
+  --ion-color-info-contrast: #ffffff;
+  --ion-color-info-contrast-rgb: 255,255,255;
+  --ion-color-info-shade: #5ca7b8;
+  --ion-color-info-tint: #7bc9da;
+
+  --ion-color-warning: var(--bs-warning);
+  --ion-color-warning-rgb: 255,206,103;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0,0,0;
+  --ion-color-warning-shade: #e0b65a;
+  --ion-color-warning-tint: #ffd37c;
+
+  --ion-color-danger: var(--bs-danger);
+  --ion-color-danger-rgb: 255,120,81;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255,255,255;
+  --ion-color-danger-shade: #e06a48;
+  --ion-color-danger-tint: #ff8c6b;
+
+  --ion-color-light: var(--bs-light);
+  --ion-color-light-rgb: 248,249,250;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0,0,0;
+  --ion-color-light-shade: #dadbdb;
+  --ion-color-light-tint: #f9fafa;
+
+  --ion-color-dark: var(--bs-dark);
+  --ion-color-dark-rgb: 52,58,64;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255,255,255;
+  --ion-color-dark-shade: #2f3439;
+  --ion-color-dark-tint: #454b51;
+
+  /* Inputs / forms por defecto */
+  --ion-item-border-color: #eceeef;             /* borde normal */
+}
+
+/* Tipografía y links globales */
+body {
+  font-family: var(--ion-font-family);
+  color: var(--ion-text-color);
+  background: var(--ion-background-color);
+}
+
+h1,h2,h3,h4,h5,h6 { color: var(--heading-color); }
+a { color: var(--link-color); }
+a:hover { color: var(--link-color-hover); }
+
+/* Estilo base para ion-item + ion-input */
+ion-item {
+  --background: transparent;
+  --border-color: var(--ion-item-border-color);
+  --highlight-color-focused: var(--ion-color-primary);
+  --color: var(--heading-color); /* label */
+  --border-radius: 12px;
+}
+ion-input::part(native) { color: var(--ion-text-color); }
+ion-input::part(native)::placeholder { color: rgba(0,0,0,.45); }
+ion-item.ion-touched.ion-invalid { --border-color: var(--ion-color-danger); }
+ion-item.ion-touched.ion-valid   { --border-color: var(--ion-color-success); }
+
+/* Botones un poco más redondos como en el mock */
+ion-button { --border-radius: 12px; }
+
+/* =========================
+   THEME OSCURO (Minty)
+   Actívalo añadiendo la clase .dark en <html> o <body>
+   ========================= */
+.dark {
+  --ion-background-color: #212529;
+  --ion-text-color: #eceeef;
+  --heading-color: #eceeef;
+  --link-color: #aedace;
+  --link-color-hover: #bee1d8;
+
+  /* Bordes e inputs en oscuro */
+  --ion-item-border-color: #5a5a5a;
+
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+}
+.dark ion-item {
+  --color: var(--ion-text-color);
+}
+.dark ion-input::part(native) { color: var(--ion-text-color); }
+.dark ion-input::part(native)::placeholder { color: rgba(236,238,239,.6); }

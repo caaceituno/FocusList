@@ -1,0 +1,33 @@
+ion-content.login-pag {
+  --background: none;
+  position: relative;
+}
+
+ion-content.login-pag::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: url('/assets/img/pocket-1565402_1280.jpg') no-repeat center center / cover;
+  filter: blur(2px);
+}
+
+.login-text {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.subtitle {
+  margin-bottom: 0;
+}
+
+.login-content{
+  background: rgb(255, 255, 255);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+}
