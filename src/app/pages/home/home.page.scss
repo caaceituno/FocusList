@@ -1,27 +1,41 @@
-#container {
-  text-align: center;
+ion-content.home-pag {
+  --background: none;
+  position: relative;
+}
 
+ion-content.home-pag::before {
+  content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  inset: 0;
+  z-index: 0;
+  background: url('/assets/img/lists-6131213_1280.jpg') no-repeat center center / cover;
+  filter: blur(2px);
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.welcome-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+.welcome-container2 {
+  background: rgb(255, 255, 255);
+  border-radius: 16px;
+  padding: 10px;
 }
 
-#container a {
-  text-decoration: none;
+.welcome-text {
+  font-size: 30px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.welcome-message {
+  color: rgb(90, 90, 90);
+  font-size: 1.2rem;
+  line-height: 1.6;
+  opacity: 0.9;
 }
