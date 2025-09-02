@@ -1,5 +1,5 @@
-import { Component, input, OnInit} from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -8,49 +8,62 @@ import { Router } from '@angular/router';
   standalone: false,
 })
 export class LoginPage implements OnInit {
-  
   email: string = '';
   password: string = '';
   errorMessage: string = '';
+  usuario: any;
+  registroUsuarios: any[] = [];
 
-  contraseñas: String[] = ["123456", "password"];
-  emails: String[] = ["jajaja@gail.com"];
-
-  constructor(private router: Router) {}
-  ngOnInit(): void {
-    throw new Error('Method not implemented.');
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private router: Router
+  ) {
+    // Recibir el parámetro y asignarlo a variable
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (this.router.getCurrentNavigation()?.extras.state) {
+        this.usuario = this.router.getCurrentNavigation()?.extras?.state?.['usuario'];
+        console.log(this.usuario);
+        if (this.usuario) {
+          this.registroUsuarios.push(this.usuario);
+        }
+      }
+    });
   }
 
-  
+  ngOnInit(): void {}
 
-  //esta funcion se encarga del login
+  // Esta función se encarga del login
   login() {
-    //Verifica si el email existe
-    const emailIndex = this.emails.indexOf(this.email);
-    if (emailIndex === -1) {
+    // Buscar el usuario por email
+    const usuarioEncontrado = this.registroUsuarios.find(
+      (user) => user.email === this.email
+    );
+
+    if (!usuarioEncontrado) {
       this.errorMessage = 'El email no está registrado';
       return false;
     }
 
-    //Verifica si la contraseña coincide SOLO en la misma posición
-    else if (this.password !== this.contraseñas[emailIndex]) {
+    // Verificar la contraseña
+    if (usuarioEncontrado.password !== this.password) {
       this.errorMessage = 'Contraseña incorrecta para este email';
       return false;
-    } else {
-      this.errorMessage = '';
-      // Navega solo si el login es exitoso
-      this.router.navigate(['/paguina']);
-      return true;
     }
 
-    //Si ambos son correctos y en la misma posición
+    // Si ambos son correctos
     this.errorMessage = '';
+    this.router.navigate(['/paguina']);
+    return true;
   }
 
-  //muestra en consola el email y la contraseña
+  // Muestra en consola el email y la contraseña
   consola() {
-    console.log("contraseña " + this.password);
-    console.log("email " + this.email);
+    console.log('contraseña ' + this.password);
+    console.log('email ' + this.email);
+
+    // Muestra todos los usuarios registrados y sus correos y contraseñas
+    this.registroUsuarios.forEach((user, index) => {
+      console.log(`Usuario ${index + 1}: Email: ${user.email}, Contraseña: ${user.password}`);
+    });
   }
 }
-
