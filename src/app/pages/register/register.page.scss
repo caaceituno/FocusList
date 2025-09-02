@@ -1,9 +1,9 @@
-ion-content.login-pag {
+ion-content.register-pag {
   --background: none;
   position: relative;
 }
 
-ion-content.login-pag::before {
+ion-content.register-pag::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -12,7 +12,7 @@ ion-content.login-pag::before {
   filter: blur(2px);
 }
 
-.login-text {
+.register-text {
   position: relative;
   z-index: 1;
   display: flex;
@@ -20,7 +20,7 @@ ion-content.login-pag::before {
   justify-content: flex-start;
 }
 
-.login-content{
+.register-content{
   background: rgb(255, 255, 255);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -64,7 +64,7 @@ ion-button {
   margin-top: 8px;
 }
 
-.register-redirect{
+.login-redirect{
   color: #5a5a5a;
   text-align: center;
   margin-top: 10px;
@@ -72,10 +72,6 @@ ion-button {
 
 .title {
   font-size: 24px;
-  margin-right: 8px;
+  margin-right: 10px;
   text-align: left;
-}
-
-.subtitle {
-  margin-bottom: 0;
 }

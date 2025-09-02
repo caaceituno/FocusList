@@ -1,22 +1,28 @@
 <ion-content class="ion-padding login-pag" [fullscreen]="true">
-  <div class="center-wrap">
+  <div class="center-box">
     <div class="login-content">
-      <div class="login-text">
-        <h1 class="title">Ingresa a tu cuenta.</h1>
-        <p class="subtitle" style="color: #5a5a5a;">Hola, bienvenido de nuevo a tu cuenta.</p>
+      <div class="login-text" style="display: flex; flex-direction: column; align-items: flex-start;">
+        <div style="display: flex; align-items: center;">
+          <h1 class="title">Ingresa a tu cuenta</h1>
+          <img src="assets/img/icon2.webp" alt="Registro" style="height: 40px; margin-top: 14px;">
+        </div>
+        <p class="subtitle" style="color: #5a5a5a; margin-top: 10px;">Hola, bienvenido de nuevo a tu cuenta.</p>
+      </div>
       <ion-card-content>
         <ion-item>
           <ion-input label="Email" type="email" labelPlacement="floating" placeholder="email@domain.com"></ion-input>
         </ion-item>
         <br>
-          <ion-item>
-            <ion-input label="Password" type="password" labelPlacement="floating" placeholder="********"></ion-input>
-          </ion-item>
+        <ion-item>
+          <ion-input label="Contraseña" type="password" labelPlacement="floating" placeholder="********"></ion-input>
+        </ion-item>
         <br>
-          <ion-button expand="block">Ingresar</ion-button>
-        <br>
+        <ion-button expand="block">Ingresar</ion-button>
+        <div class="register-redirect">
+          ¿No tienes cuenta?
+          <a href="/register" style="color: #3880ff; text-decoration: underline;">Regístrate aquí</a>
+        </div>
       </ion-card-content>
-      </div>
     </div>
   </div>
 </ion-content>

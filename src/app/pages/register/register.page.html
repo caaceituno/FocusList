@@ -1,0 +1,33 @@
+<ion-content class="ion-padding register-pag" [fullscreen]="true">
+  <div class="center-box">
+    <div class="register-content">
+      <div class="register-text">
+        <h1 class="title">Crea tu cuenta</h1>
+        <img src="assets/img/icon2.webp" alt="Registro" style="height: 40px; margin-top: 14px;">
+      </div>
+      <ion-card-content>
+        <ion-item>
+          <ion-input label="Nombre" type="text" labelPlacement="floating" placeholder="Tu nombre"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input label="Apellido" type="text" labelPlacement="floating" placeholder="Tu apellido"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input label="Email" type="email" labelPlacement="floating" placeholder="email@domain.com"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input label="Contraseña" type="password" labelPlacement="floating" placeholder="********"></ion-input>
+        </ion-item>
+        <br>
+        <ion-button expand="block">Registrate</ion-button>
+        <div class="login-redirect">
+          ¿Ya tienes cuenta?
+          <a href="/login" style="color: #3880ff; text-decoration: underline;">Ingresa aquí</a>
+        </div>
+      </ion-card-content>
+    </div>
+  </div>
+</ion-content>
