@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, input, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -20,6 +20,8 @@ export class LoginPage implements OnInit {
   ngOnInit(): void {
     throw new Error('Method not implemented.');
   }
+
+  
 
   //esta funcion se encarga del login
   login() {
