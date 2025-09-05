@@ -29,7 +29,7 @@ export class WelcomePage implements OnInit {
         backgroundImage: 'url("/assets/img/background04.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%)'
       }
     },
-    { front: 'Únete a FocusList hoy',
+    { front: '¡Comienza ahora!',
       style: {
         backgroundImage: 'url("/assets/img/background01.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%)'
       }
@@ -40,7 +40,7 @@ export class WelcomePage implements OnInit {
   bookTransform = 'translateX(0%)';
 
   goNextPage() {
-    if (this.currentLocation < this.pages.length) {  // Cambiado de <= a <
+    if (this.currentLocation < this.pages.length) {
       this.currentLocation++;
       this.bookTransform = 'translateX(0%)';
     }
@@ -54,17 +54,10 @@ export class WelcomePage implements OnInit {
   }
 
   pagFinal(): boolean {
-    return this.currentLocation === this.pages.length;  // Cambiado a una comparación exacta
+    return this.currentLocation === this.pages.length;
   }
 
   pagInicial(): boolean {
     return this.currentLocation === 1;
-  }
-
-  joinFocusList() {
-    // Aquí puedes añadir la lógica para redirigir al usuario
-    console.log('Joining FocusList...');
-    // Por ejemplo:
-    // this.router.navigate(['/register']);
   }
 }

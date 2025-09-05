@@ -4,16 +4,15 @@
       class="paper"
       *ngFor="let page of pages; let i = index"
       [ngClass]="{ 'flipped': i < currentLocation - 1 }"
-      [style.zIndex]="pages.length - i"
+      [style.zIndex]="i === currentLocation - 1 ? 999 : (pages.length - i)"
     >
       <div class="front" [ngStyle]="page.style">
         <div class="front-content">
           <ng-container *ngIf="i === pages.length - 1; else regularText">
+            <h1 class="welcome-text">Bienvenido a FocusList</h1>
+            <p class="welcome-message">Organiza tus tareas y maximiza tu productividad.</p>
             <ion-button 
-              class="join-button" 
-              size="default" 
-              color="light"
-              (click)="joinFocusList()">
+              class="join-button" href="/register" style="text-decoration: underline;">
               {{ page.front }}
             </ion-button>
           </ng-container>
