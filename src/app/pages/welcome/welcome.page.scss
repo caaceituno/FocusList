@@ -1,0 +1,103 @@
+.card {
+    width: 100vw;
+    height: 100vh;
+    perspective: 1000px;
+    margin: 0;
+    border-radius: 0;
+    position: relative;
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.999s;
+}
+
+.card-inner.active {
+    transform: rotateY(-180deg); /* Aplica la rotación cuando se hace clic */
+}
+
+.card-one,
+.card-two,
+.card-three,
+.card-four {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 0;
+}
+
+.card-one {
+    background-image:
+        url('/assets/img/background02.png'),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transform: rotateY(0deg);
+}
+
+.card-two {
+    background-image:
+        url('/assets/img/background03.png'),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transform: rotateY(180deg);
+}
+
+.card-three {
+    background-image:
+        url('/assets/img/background04.png'),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transform: rotateY(180deg);
+}
+
+.card-four {
+    background-image:
+        url('/assets/img/background01.png'),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transform: rotateY(180deg);
+}
+
+.welcome-text {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
