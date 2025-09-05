@@ -1,12 +1,37 @@
 <ion-content [fullscreen]="true">
-  <ion-card class="card" id="card" (click)="toggleCard()">
-    <div class="card-inner">
-      <div class="card-one">
-        <p class="welcome-text">FocusList tu agenda personal para convertir pendientes en planes simples y manejables.</p>
-      </div>
-      <div class="card-two">
-        <p class="welcome-text">Crea listas, añade tareas y mantén todo bajo control sin complicaciones.</p>
+  <div class="book">
+    <div
+      class="paper"
+      *ngFor="let page of pages; let i = index"
+      [ngClass]="{ 'flipped': i < currentLocation - 1 }"
+      [style.zIndex]="pages.length - i"
+    >
+      <div class="front" [ngStyle]="page.style">
+        <div class="front-content">
+          <ng-container *ngIf="i === pages.length - 1; else regularText">
+            <ion-button 
+              class="join-button" 
+              size="default" 
+              color="light"
+              (click)="joinFocusList()">
+              {{ page.front }}
+            </ion-button>
+          </ng-container>
+          <ng-template #regularText>
+            <p>{{ page.front }}</p>
+          </ng-template>
+        </div>
       </div>
     </div>
-  </ion-card>
+  </div>
+
+  <ion-button class="nav-button" id="prev-btn" (click)="goPrevPage()" [hidden]="pagInicial()" fill="clear">
+    <ion-icon name="arrow-back-circle-outline"></ion-icon>
+  </ion-button>
+
+  <ion-button class="nav-button" id="next-btn" (click)="goNextPage()" [hidden]="pagFinal()" fill="clear">
+    <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+  </ion-button>
+
+  
 </ion-content>

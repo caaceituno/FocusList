@@ -12,31 +12,59 @@ export class WelcomePage implements OnInit {
 
   ngOnInit() {
   }
-  
-  pages = [
-  {
-    text: 'FocusList tu agenda personal para convertir pendientes en planes simples y manejables.',
-    bg: '/assets/img/background01.png',
-  },
-  {
-    text: 'Crea listas, añade tareas y mantén todo bajo control sin complicaciones.',
-    bg: '/assets/img/background02.png',
-  },
-  {
-    text: 'Conecta con tu calendario y visualiza tu progreso día a día.',
-    bg: '/assets/img/background03.png',
-  },
-  {
-    text: 'Tu productividad, tu ritmo. Sin ruido, sin fricción.',
-    bg: '/assets/img/background04.png',
-  },
-];
 
-  toggleCard() {
-    const cardInner = document.querySelector('.card-inner');
-    if (cardInner) {
-      cardInner.classList.toggle('active'); // Alterna la clase 'active' en cada clic
+  pages = [
+    { front: 'FocusList tu agenda personal para convertir pendientes en planes manejables.', 
+      style: {
+        backgroundImage: 'url("/assets/img/background02.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%)'
+      }
+    },
+    { front: 'Crea listas y tareas sin complicaciones',
+      style: {
+        backgroundImage: 'url("/assets/img/background03.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%)'
+      }
+    },
+    { front: 'Organiza tu tiempo de forma efectiva',
+      style: {
+        backgroundImage: 'url("/assets/img/background04.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%)'
+      }
+    },
+    { front: 'Únete a FocusList hoy',
+      style: {
+        backgroundImage: 'url("/assets/img/background01.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.979) 0%, rgba(255, 255, 255, 0) 40%)'
+      }
+    },
+  ];
+
+  currentLocation = 1;
+  bookTransform = 'translateX(0%)';
+
+  goNextPage() {
+    if (this.currentLocation < this.pages.length) {  // Cambiado de <= a <
+      this.currentLocation++;
+      this.bookTransform = 'translateX(0%)';
     }
   }
 
+  goPrevPage() {
+    if (this.currentLocation > 1) {
+      this.currentLocation--;
+      this.bookTransform = 'translateX(0%)';
+    }
+  }
+
+  pagFinal(): boolean {
+    return this.currentLocation === this.pages.length;  // Cambiado a una comparación exacta
+  }
+
+  pagInicial(): boolean {
+    return this.currentLocation === 1;
+  }
+
+  joinFocusList() {
+    // Aquí puedes añadir la lógica para redirigir al usuario
+    console.log('Joining FocusList...');
+    // Por ejemplo:
+    // this.router.navigate(['/register']);
+  }
 }
