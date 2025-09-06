@@ -4,7 +4,7 @@
       class="paper"
       *ngFor="let page of pages; let i = index"
       [ngClass]="{ 'flipped': i < currentLocation - 1 }"
-      [style.zIndex]="i === currentLocation - 1 ? 999 : (pages.length - i)"
+      [style.zIndex]="pages.length - i"
     >
       <div class="front" [ngStyle]="page.style">
         <div class="front-content">
