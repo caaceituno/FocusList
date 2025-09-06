@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Preferences } from '@capacitor/preferences';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -8,62 +10,47 @@ import { ActivatedRoute, Router } from '@angular/router';
   standalone: false,
 })
 export class LoginPage implements OnInit {
-  email: string = '';
-  password: string = '';
-  errorMessage: string = '';
-  usuario: any;
-  registroUsuarios: any[] = [];
+  usuario: any = {
+    email: '',
+    contrasena: '',
+  };
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private router: Router
-  ) {
-    // Recibir el parámetro y asignarlo a variable
-    this.activatedRoute.queryParams.subscribe(params => {
-      if (this.router.getCurrentNavigation()?.extras.state) {
-        this.usuario = this.router.getCurrentNavigation()?.extras?.state?.['usuario'];
-        console.log(this.usuario);
-        if (this.usuario) {
-          this.registroUsuarios.push(this.usuario);
-        }
-      }
-    });
+    private router: Router,
+    private toastController: ToastController
+  ) { }
+
+
+  ngOnInit(): void {
   }
 
-  ngOnInit(): void {}
+  async iniciarSesion() {
+    const { value } = await Preferences.get({ key: 'last_user' });
 
-  // Esta función se encarga del login
-  login() {
-    // Buscar el usuario por email
-    const usuarioEncontrado = this.registroUsuarios.find(
-      (user) => user.email === this.email
-    );
-
-    if (!usuarioEncontrado) {
-      this.errorMessage = 'El email no está registrado';
-      return false;
+    if (!value) {
+      this.presentToast('No hay usuarios registrados');
+      return;
     }
 
-    // Verificar la contraseña
-    if (usuarioEncontrado.password !== this.password) {
-      this.errorMessage = 'Contraseña incorrecta para este email';
-      return false;
-    }
+    const registrado = JSON.parse(value);
 
-    // Si ambos son correctos
-    this.errorMessage = '';
-    this.router.navigate(['/paguina']);
-    return true;
+    if (
+      this.usuario.email === registrado.email &&
+      this.usuario.contrasena === registrado.contrasena
+    ) {
+      this.presentToast('Inicio de sesión exitoso');
+      this.router.navigate(['/home'], { state: { usuario: registrado } });
+    } else {
+      this.presentToast('Credenciales inválidas');
+    }
   }
 
-  // Muestra en consola el email y la contraseña
-  consola() {
-    console.log('contraseña ' + this.password);
-    console.log('email ' + this.email);
-
-    // Muestra todos los usuarios registrados y sus correos y contraseñas
-    this.registroUsuarios.forEach((user, index) => {
-      console.log(`Usuario ${index + 1}: Email: ${user.email}, Contraseña: ${user.password}`);
+  async presentToast(msg: string) {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 2000,
+      position: 'top',
     });
+    await toast.present();
   }
 }

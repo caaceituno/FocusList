@@ -10,14 +10,14 @@
       </div>
       <ion-card-content>
         <ion-item>
-          <ion-input label="Email" type="email" labelPlacement="floating" placeholder="email@domain.com"></ion-input>
+          <ion-input label="Email" type="email" labelPlacement="floating" placeholder="email@domain.com" [(ngModel)]="usuario.email"></ion-input>
         </ion-item>
         <br>
         <ion-item>
-          <ion-input label="Contraseña" type="password" labelPlacement="floating" placeholder="********"></ion-input>
+          <ion-input label="Contraseña" type="password" labelPlacement="floating" placeholder="********" [(ngModel)]="usuario.contrasena"></ion-input>
         </ion-item>
         <br>
-        <ion-button expand="block">Ingresar</ion-button>
+        <ion-button expand="block" (click)="iniciarSesion()">Ingresar</ion-button>
         <div class="register-redirect">
           ¿No tienes cuenta?
           <a href="/register" style="color: #3880ff; text-decoration: underline;">Regístrate aquí</a>

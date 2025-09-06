@@ -7,22 +7,22 @@
       </div>
       <ion-card-content>
         <ion-item>
-          <ion-input label="Nombre" type="text" labelPlacement="floating" placeholder="Tu nombre"></ion-input>
+          <ion-input label="Nombre" type="text" labelPlacement="floating" placeholder="Tu nombre" [(ngModel)] = "usuario.nombre"></ion-input>
         </ion-item>
         <br>
         <ion-item>
-          <ion-input label="Apellido" type="text" labelPlacement="floating" placeholder="Tu apellido"></ion-input>
+          <ion-input label="Apellido" type="text" labelPlacement="floating" placeholder="Tu apellido" [(ngModel)] = "usuario.apellido"></ion-input>
         </ion-item>
         <br>
         <ion-item>
-          <ion-input label="Email" type="email" labelPlacement="floating" placeholder="email@domain.com"></ion-input>
+          <ion-input label="Email" type="email" labelPlacement="floating" placeholder="email@domain.com" [(ngModel)] = "usuario.email"></ion-input>
         </ion-item>
         <br>
         <ion-item>
-          <ion-input label="Contraseña" type="password" labelPlacement="floating" placeholder="********"></ion-input>
+          <ion-input label="Contraseña" type="password" labelPlacement="floating" placeholder="********" [(ngModel)] = "usuario.contrasena"></ion-input>
         </ion-item>
         <br>
-        <ion-button expand="block">Registrate</ion-button>
+        <ion-button expand="block" (click)="registro()">Registrate</ion-button>
         <div class="login-redirect">
           ¿Ya tienes cuenta?
           <a href="/login" style="color: #3880ff; text-decoration: underline;">Ingresa aquí</a>
