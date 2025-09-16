@@ -1,4 +1,7 @@
 # FocusList
+Previo a la ejecucio:
+ejecutar en consola:
+- npm install @angular/fire firebase
 
 Avance 1:
 

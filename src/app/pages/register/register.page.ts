@@ -1,7 +1,11 @@
+
 import { Component, input, OnInit } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
+import { Firestore, collection, addDoc } from '@angular/fire/firestore'; // Ejemplo para AngularFirestore
 import { ToastController } from '@ionic/angular';
 import { Preferences } from '@capacitor/preferences';
+import { usuarios } from 'src/app/models/usuarios';
+
 
 @Component({
   selector: 'app-register',
@@ -24,7 +28,10 @@ export class RegisterPage implements OnInit {
 
   errorMessage: String = ''
 
-  constructor(public toastController: ToastController, private router: Router) {}
+  constructor(
+    public toastController: ToastController, 
+    private router: Router,
+    private firestore: Firestore) {}
   ngOnInit(): void {}
 
   // Método registrar
@@ -68,5 +75,15 @@ export class RegisterPage implements OnInit {
     });
 
     await toast.present();
+  }
+  //guardar en la base de datos
+  async guardarEnDB(model: usuarios) {
+    try {
+      const usuariosCollection = collection(this.firestore, 'usuarios');
+      await addDoc(usuariosCollection, model);
+      console.log('Usuario guardado en Firestore exitosamente.');
+    } catch (error) {
+      console.error('Error al guardar el usuario en Firestore:', error);
+    }
   }
 }
