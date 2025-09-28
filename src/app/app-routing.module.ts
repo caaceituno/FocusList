@@ -31,6 +31,17 @@ const routes: Routes = [
     path: 'start',
     loadChildren: () => import('./pages/start/start.module').then( m => m.StartPageModule)
   },
+  {
+    path: 'not-found',
+    loadChildren: () => import('./pages/not-found/not-found.module').then( m => m.NotFoundPageModule)
+  },
+  {
+    path: '**',
+    redirectTo: 'not-found'
+  }
+
+  //WAAAAASAAAAAAAAAAAAAAAAAAAAAAA
+
 
 
 
