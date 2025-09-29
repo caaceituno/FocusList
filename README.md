@@ -2,6 +2,7 @@
 Previo a la ejecucio:
 ejecutar en consola:
 - npm install @angular/fire firebase
+- npm install @ionic/storage-angular
 
 Avance 1:
 
