@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FirebaseService } from '../../services/firebase.service'; // Importa el servicio
+import { FirebaseService } from '../../services/fireBase/firebase.service'; // Importa el servicio
 
 @Component({
   selector: 'app-tareas',

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
-import { Iagenda } from '../interface/itareas';
+import { Iagenda } from '../../interface/itareas';
 import { ToastController } from '@ionic/angular';
 
 @Injectable({
