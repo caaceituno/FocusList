@@ -76,4 +76,18 @@ export class UsuarioService {
   async logout() {
     await this._storage?.remove('usuarioActivo');
   }
+
+  async isAuthenticated(): Promise<boolean> {
+    const user = await this.getUsuarioActivo();
+    return !!user; //true si hay usuario activo, false si no
+  }
+
+  async WelcomeAnimation() {
+  await this._storage?.set('welcomeAnimation', true);
+  }
+
+  async AnimacionVista(): Promise<boolean> {
+    return (await this._storage?.get('welcomeAnimation')) === true;
+  }
+
 }
