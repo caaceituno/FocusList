@@ -7,87 +7,68 @@ import { Users } from '../../interfaces/users';
   providedIn: 'root'
 })
 export class UsuarioService {
-
-  usuarios: Users[] = [];
   private _storage: Storage | null = null;
+  usuarios: Users[] = [];
 
-  constructor(private storage: Storage, private toastController: ToastController) {
-    this.init();
-    this.cargarUsuarios();
-  }
-  
-  private async init() {
-    const storage = await this.storage.create();
-    this._storage = storage;
-  }
+  constructor(private storage: Storage, private toastController: ToastController) {}
 
-  async cargarUsuarios() {
-    const data = await this.storage.get('usuarios');
-    if (data) {
-      this.usuarios = data;
+  private async ready() {
+    if (!this._storage) {
+      this._storage = await this.storage.create();
     }
   }
 
   async guardarUsuario(user: Users) {
-    const existe = this.usuarios.find(u => u.email === user.email);
+    await this.ready();
+    const usuarios = (await this._storage?.get('usuarios')) || [];
+    const existe = usuarios.find((u: Users) => u.email === user.email);
+
     if (!existe) {
-      this.usuarios.unshift(user);
-      await this._storage?.set('usuarios', this.usuarios);
+      usuarios.unshift(user);
+      await this._storage?.set('usuarios', usuarios);
       this.presentToast('Usuario registrado');
     } else {
       this.presentToast('El usuario ya existe');
     }
   }
 
-  async mostrarUsuarios() {
-    return this.usuarios;
-  }
-
-  async eliminarUsuario(email: string) {
-    this.usuarios = this.usuarios.filter(u => u.email !== email);
-    await this._storage?.set('usuarios', this.usuarios);
-    this.presentToast('Usuario eliminado');
-  }
-
-  async borrarBD() {
-    await this._storage?.clear();
-    this.usuarios = [];
-    this.presentToast('Base de datos de usuarios eliminada');
-  }
-
-  private async presentToast(mensaje: string) {
-    const toast = await this.toastController.create({
-      message: mensaje,
-      position: 'top',
-      duration: 2000,
-      color: 'medium'
-    });
-    toast.present();
+  async mostrarUsuarios(): Promise<Users[]> {
+    await this.ready();
+    return (await this._storage?.get('usuarios')) || [];
   }
 
   async setUsuarioActivo(user: Users) {
+    await this.ready();
     await this._storage?.set('usuarioActivo', user);
   }
 
   async getUsuarioActivo(): Promise<Users | null> {
+    await this.ready();
     return await this._storage?.get('usuarioActivo');
   }
 
-  async logout() {
-    await this._storage?.remove('usuarioActivo');
-  }
-
   async isAuthenticated(): Promise<boolean> {
+    await this.ready();
     const user = await this.getUsuarioActivo();
-    return !!user; //true si hay usuario activo, false si no
+    return !!user;
   }
 
-  async WelcomeAnimation() {
-  await this._storage?.set('welcomeAnimation', true);
+  async setWelcomeShown() {
+    await this.ready();
+    await this._storage?.set('welcomeShown', true);
   }
 
-  async AnimacionVista(): Promise<boolean> {
-    return (await this._storage?.get('welcomeAnimation')) === true;
+  async hasWelcomeShown(): Promise<boolean> {
+    await this.ready();
+    return (await this._storage?.get('welcomeShown')) === true;
   }
 
+  private async presentToast(msg: string) {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 2000,
+      position: 'top'
+    });
+    await toast.present();
+  }
 }

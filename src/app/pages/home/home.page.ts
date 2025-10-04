@@ -18,4 +18,9 @@ export class HomePage implements OnInit {
     this.usuario = await this.usuarioService.getUsuarioActivo();
     console.log('usuario activo en home:', this.usuario);
   }
+
+  async ionViewWillEnter() {
+    this.usuario = await this.usuarioService.getUsuarioActivo();
+    console.log('usuarioActivo en Home:', this.usuario);
+  }
 }

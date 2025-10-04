@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { UsuarioService } from '../../services/registro/usuario.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-welcome',
@@ -8,9 +10,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class WelcomePage implements OnInit {
 
-  constructor() { }
+  constructor(
+    private router: Router,
+    private usuarioService: UsuarioService
+  ) {}
 
   ngOnInit() {
+  }
+
+  async continuar() {
+    await this.usuarioService.setWelcomeShown();
+    this.router.navigate(['/login']);
   }
 
   pages = [
@@ -60,4 +70,5 @@ export class WelcomePage implements OnInit {
   pagInicial(): boolean {
     return this.currentLocation === 1;
   }
+  
 }

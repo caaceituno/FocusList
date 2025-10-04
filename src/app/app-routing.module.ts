@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth-guard';
-import { WelcomeGuard } from './guards/welcome-guard';
+import { StartGuard } from './guards/start-guard';
+import { AppComponent } from './app.component';
 
 const routes: Routes = [
   {
@@ -11,8 +12,8 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'welcome',
-    pathMatch: 'full'
+    canActivate: [StartGuard],
+    loadChildren: () => import('./pages/start/start.module').then(m => m.StartPageModule)
   },
   {
     path: 'login',
@@ -28,8 +29,7 @@ const routes: Routes = [
   },
   {
     path: 'welcome',
-    loadChildren: () => import('./pages/welcome/welcome.module').then( m => m.WelcomePageModule),
-    canActivate: [WelcomeGuard]
+    loadChildren: () => import('./pages/welcome/welcome.module').then( m => m.WelcomePageModule)
   },
   {
     path: 'start',
