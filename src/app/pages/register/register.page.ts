@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { ToastController } from '@ionic/angular';
-import { Preferences } from '@capacitor/preferences';
+import { Users } from '../../interfaces/users';
+import { UsuarioService } from '../../services/registro/usuario.service';
 
 @Component({
   selector: 'app-register',
@@ -10,47 +10,44 @@ import { Preferences } from '@capacitor/preferences';
   styleUrls: ['./register.page.scss'],
   standalone: false,
 })
+
 export class RegisterPage implements OnInit {
 
-  usuario: any = {
-    nombre:  '',
-    apellido: '',
-    email: '',
-    contrasena: '',
+  usuario: Users = {
+  nombre: '',
+  apellido: '',
+  email: '',
+  contrasena: '',
   }
 
-  field: string = "";
-  errorMessage: String = '';
+  field: string="";
+
+  errorMessage: String = ''
 
   constructor(
-    public toastController: ToastController, 
+    public toastController: ToastController,
     private router: Router,
-    private firestore: Firestore
+    private usuarioService: UsuarioService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
-  // Método registrar
-  async registro() {
+  //Método registrar
+    async registro() {
     if (this.validacionModelo(this.usuario)) {
 
-      // Guardar en local
-      await Preferences.set({
-        key: 'last_user',
-        value: JSON.stringify(this.usuario)
-      });
+      //para guardar en local
+      await this.usuarioService.guardarUsuario(this.usuario);
 
-      // Guardar en Firestore
-      await this.guardarEnDB(this.usuario);
-
-      // Verificación en consola
-      const { value } = await Preferences.get({ key: 'last_user' });
-      console.log('Usuario guardado en local:', value);
+      //verificacion en consola
+      console.log('Usuarios guardados:', await this.usuarioService.mostrarUsuarios());
 
       let navigationExtras: NavigationExtras = {
         state: { usuario: this.usuario }
       };
       this.router.navigate(['/login'], navigationExtras);
+
     } else {
       this.presentToast('top', 'Error: Falta ' + this.field, 5000);
     }
@@ -74,16 +71,5 @@ export class RegisterPage implements OnInit {
     });
 
     await toast.present();
-  }
-
-  // Guardar en la base de datos
-  async guardarEnDB(model: any) {
-    try {
-      const usuariosCollection = collection(this.firestore, 'usuarios');
-      await addDoc(usuariosCollection, model);
-      console.log('Usuario guardado en Firestore exitosamente.');
-    } catch (error) {
-      console.error('Error al guardar el usuario en Firestore:', error);
-    }
   }
 }

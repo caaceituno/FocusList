@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { UsuarioService } from '../../services/registro/usuario.service';
+import { Users } from '../../interfaces/users';
 
 @Component({
   selector: 'app-home',
@@ -7,18 +8,14 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['home.page.scss'],
   standalone: false,
 })
-export class HomePage {
+export class HomePage implements OnInit {
 
-  usuario: any;
+  usuario: Users | null = null;
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router) {
-    this.activatedRoute.queryParams.subscribe(() => {
-      if (this.router.getCurrentNavigation()?.extras.state) {
-        this.usuario = this.router.getCurrentNavigation()?.extras?.state?.['usuario'];
-        console.log('usuario recibido en home:', this.usuario);
-      }
-    });
+  constructor(private usuarioService: UsuarioService) {}
+
+  async ngOnInit() {
+    this.usuario = await this.usuarioService.getUsuarioActivo();
+    console.log('usuario activo en home:', this.usuario);
   }
-
-  
 }

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Preferences } from '@capacitor/preferences';
+import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { UsuarioService } from '../../services/registro/usuario.service';
+import { Login } from '../../interfaces/login';
 
 @Component({
   selector: 'app-login',
@@ -10,14 +11,16 @@ import { ToastController } from '@ionic/angular';
   standalone: false,
 })
 export class LoginPage implements OnInit {
-  usuario: any = {
+
+  usuario: Login = {
     email: '',
-    contrasena: '',
+    contrasena: ''
   };
 
   constructor(
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private usuarioService: UsuarioService
   ) { }
 
 
@@ -25,27 +28,30 @@ export class LoginPage implements OnInit {
   }
 
   async iniciarSesion() {
-    const { value } = await Preferences.get({ key: 'last_user' });
+    const usuarios = await this.usuarioService.mostrarUsuarios();
 
-    if (!value) {
+    if (!usuarios || usuarios.length === 0) {
       this.presentToast('No hay usuarios registrados');
       return;
     }
 
-    const registrado = JSON.parse(value);
+    //buscar si el email y contraseña coinciden
+    const registrado = usuarios.find(
+      u => u.email === this.usuario.email && u.contrasena === this.usuario.contrasena
+    );
 
-    if (
-      this.usuario.email === registrado.email &&
-      this.usuario.contrasena === registrado.contrasena
-    ) {
+    if (registrado) {
       this.presentToast('Inicio de sesión exitoso');
-      this.router.navigate(['/home'], { state: { usuario: registrado } });
+      await this.usuarioService.setUsuarioActivo(registrado);
+
+      this.router.navigate(['/home']);
     } else {
       this.presentToast('Credenciales inválidas');
     }
   }
+    
 
-  async presentToast(msg: string) {
+  private async presentToast(msg: string) {
     const toast = await this.toastController.create({
       message: msg,
       duration: 2000,
