@@ -1,5 +1,5 @@
 # FocusList
-Previo a la ejecucio:
+Previo a la ejecución:
 ejecutar en consola:
 - npm install @angular/fire firebase
 - npm install @ionic/storage-angular
@@ -13,9 +13,16 @@ Avance 1:
 - Navegación entre pages ✅
 
 
-
 Avance 2:
 
 - Animación ✅
 
 - Login (con validaciones) ✅
+
+Avance 3:
+
+- Persistencia de datos ✅
+
+- RouteGuard ✅
+
+- Página 404 ✅

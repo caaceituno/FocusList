@@ -40,11 +40,13 @@ const routes: Routes = [
     loadChildren: () => import('./pages/not-found/not-found.module').then( m => m.NotFoundPageModule)
   },
   {
+    path: 'admin-users',
+    loadChildren: () => import('./pages/admin-users/admin-users.module').then( m => m.AdminUsersPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'not-found'
-  }
-
-  //WAAAAASAAAAAAAAAAAAAAAAAAAAAAA
+  },
 
 
 

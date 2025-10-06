@@ -71,4 +71,31 @@ export class UsuarioService {
     });
     await toast.present();
   }
+
+  async borrarUsuario(email: string): Promise<void> {
+    await this.ready();
+    const usuarios = (await this._storage?.get('usuarios')) || [];
+    const nuevosUsuarios = usuarios.filter((u: Users) => u.email !== email);
+    await this._storage?.set('usuarios', nuevosUsuarios);
+
+    // Si el usuario borrado era el activo, lo eliminamos
+    const usuarioActivo = await this._storage?.get('usuarioActivo');
+    if (usuarioActivo && usuarioActivo.email === email) {
+      await this._storage?.remove('usuarioActivo');
+    }
+  }
+
+  async borrarTodosUsuarios(): Promise<void> {
+    await this.ready();
+    await this._storage?.set('usuarios', []);
+  }
+
+  async editarUsuario(usuarioEditado: Users): Promise<void> {
+    await this.ready();
+    const usuarios = (await this._storage?.get('usuarios')) || [];
+    const nuevosUsuarios = usuarios.map((u: Users) =>
+      u.email === usuarioEditado.email ? usuarioEditado : u
+    );
+    await this._storage?.set('usuarios', nuevosUsuarios);
+  }
 }
