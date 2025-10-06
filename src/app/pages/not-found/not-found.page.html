@@ -1,18 +1,16 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Página No Encontrada</ion-title>
+<ion-header class="notfound-header" translucent="true">
+  <ion-toolbar class="notfound-toolbar">
+    <ion-title>Página no encontrada</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-<ion-card>
-  <img alt="404" src="https://franklinbelen.com/wp-content/uploads/cual-es-el-error-404-not-fund.jpg" />
-  <ion-card-header>
-    <ion-card-title>Error</ion-card-title>
-  </ion-card-header>
-
-  <ion-card-content>
-   En Construcción
-  </ion-card-content>
-</ion-card>
+<ion-content class="notfound-content">
+  <div class="notfound-container">
+    <img src="assets/img/404 2.png" alt="404" class="notfound-img" />
+    <h2>¡Ups! No pudimos encontrar esta página</h2>
+    <p>Parece que te perdiste en el camino, pero no te preocupes. Puedes volver al inicio y continuar con tus tareas.</p>
+    <ion-button expand="block" color="tertiary" routerLink="/home" class="notfound-btn">
+      Volver al inicio
+    </ion-button>
+  </div>
 </ion-content>

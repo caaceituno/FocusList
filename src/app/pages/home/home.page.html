@@ -1,12 +1,43 @@
-<ion-header [translucent]="true">
+<ion-header class="welcome-header" translucent="true">
   <ion-toolbar>
-    <ion-title>Home incompleta</ion-title>
+    <div class="welcome-card">
+      <ion-avatar>
+        <img src="assets/icon/user.svg" alt="Usuario" class="user" />
+      </ion-avatar>
+      <div>
+        <h2 class="welcome-title">¡Bienvenido/a {{ usuario?.nombre }}!</h2>
+        <p class="welcome-subtitle">¿Listo/a para revisar tus actividades?</p>
+      </div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <div class="welcome-container">
-    <h1 class="welcome-title">Bienvenido {{ usuario?.nombre }}</h1>
-    <p class="welcome-subtitle">¿Listo/a para revisar tus actividades?</p>
+<ion-content>
+  <app-tareas
+    titulo="Atrasadas"
+    color="danger"
+    [tareas]="tareasAtrasadas"
+    mensajeVacio="¡No tienes tareas atrasadas! ¡Felicidades!">
+  </app-tareas>
+
+  <app-tareas
+    titulo="Hoy"
+    color="light"
+    [tareas]="tareasHoy"
+    mensajeVacio="No tienes tareas para hoy.">
+  </app-tareas>
+
+  <app-tareas
+    titulo="Próximamente"
+    color="tertiary"
+    [tareas]="tareasProximas"
+    mensajeVacio="¡No hay tareas próximas!">
+  </app-tareas>
+
+    <div style="padding: 24px 0 0 0; text-align: center;">
+    <ion-button color="danger" routerLink="/not-found">
+      Probar página 404
+    </ion-button>
   </div>
+
 </ion-content>

@@ -1,0 +1,77 @@
+section {
+  margin: 24px 0;
+}
+
+h3 {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 12px;
+}
+
+/* === Contenedor de tareas === */
+.tareas-container {
+  background-color: #2b2b2b;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 0 12px;
+}
+
+/* === Cada tarea === */
+.tarea-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0;
+  border-left: 2px solid transparent;
+}
+
+/* separación visual entre tareas */
+.tarea-item:not(:last-child) {
+  border-bottom: 1px solid #3c3c3c;
+  padding-bottom: 8px;
+}
+
+/* Colores dinámicos */
+.danger h2,
+.danger small {
+  color: #ff5c5c;
+}
+
+.light h2,
+.light small {
+  color: #c7c7c7;
+}
+
+.tertiary h2,
+.tertiary small {
+  color: #8cb8ff;
+}
+
+/* Texto secundario */
+.tarea-item p {
+  color: #bcbcbc;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.tarea-item h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tarea-item small {
+  font-size: 0.8rem;
+  color: #9a9a9a;
+}
+
+/* Texto cuando no hay tareas */
+ion-text {
+  display: block;
+  text-align: left;
+  color: #7a7a7a !important;
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
