@@ -1,5 +1,5 @@
 ion-content {
-  --background: #1f1f1f;
+  --background: #ffffff;
   color: #fff;
   padding: 0;
 }
@@ -8,7 +8,7 @@ ion-content {
     display: flex;
     align-items: center;
     gap: 4px;
-    background-color: #2b2b2b;
+    background-color: #fbb03c;
     width: 100vw;
     padding: calc(env(safe-area-inset-top, 48px) + 32px) 12px 16px;
 }
@@ -21,7 +21,7 @@ ion-avatar {
 }
 
 .user {
-  background-color: #4b4b4b;
+  background-color: #ffffff;
   border-radius: 50%;
   object-fit: cover;
   width: 100%;
@@ -29,7 +29,7 @@ ion-avatar {
 }
 
 .welcome-title {
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #fff;
   margin: 0 0 4px 0;
@@ -40,7 +40,7 @@ ion-avatar {
 }
 
 .welcome-card p {
-  font-size: 0.9rem;
-  color: #bdbdbd;
+  font-size: 1.1rem;
+  color: #ffffff;
   margin: 0;
 }
