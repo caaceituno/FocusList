@@ -40,9 +40,28 @@
     </ion-button>
   </div>
   <div style="padding: 24px 0 0 0; text-align: center;">
-    <ion-button color="medium">
-      Logout 
+    <ion-button color="medium" (click)="logout()">
+      Logout
     </ion-button>
   </div>
 
 </ion-content>
+
+<ion-footer>
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>Hoy</span>
+    </div>
+
+    <div class="nav-item">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>Próximo</span>
+    </div>
+
+    <div class="nav-item">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Perfil</span>
+    </div>
+  </div>
+</ion-footer>

@@ -98,4 +98,9 @@ export class UsuarioService {
     );
     await this._storage?.set('usuarios', nuevosUsuarios);
   }
+
+  logout(): void {
+    localStorage.removeItem('usuario');
+    //Aquí puedes agregar más lógica si es necesario (por ejemplo, limpiar tokens, etc.)
+  }
 }

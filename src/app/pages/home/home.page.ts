@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../../services/registro/usuario.service';
 import { Users } from '../../interfaces/users';
-import { Storage } from '@ionic/storage-angular'; // <---para leer las tareas guardadas
+import { Storage } from '@ionic/storage-angular'; //para leer las tareas guardadas
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +20,8 @@ export class HomePage implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
-    private storage: Storage
+    private storage: Storage,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -63,5 +65,10 @@ export class HomePage implements OnInit {
       f.getMonth() === hoy.getMonth() &&
       f.getFullYear() === hoy.getFullYear()
     );
+  }
+
+  logout() {
+    this.usuarioService.logout();
+    this.router.navigate(['/login']);
   }
 }
