@@ -78,7 +78,7 @@ export class UsuarioService {
     const nuevosUsuarios = usuarios.filter((u: Users) => u.email !== email);
     await this._storage?.set('usuarios', nuevosUsuarios);
 
-    // Si el usuario borrado era el activo, lo eliminamos
+    //si el usuario borrado era el activo se elimina
     const usuarioActivo = await this._storage?.get('usuarioActivo');
     if (usuarioActivo && usuarioActivo.email === email) {
       await this._storage?.remove('usuarioActivo');
@@ -97,10 +97,15 @@ export class UsuarioService {
       u.email === usuarioEditado.email ? usuarioEditado : u
     );
     await this._storage?.set('usuarios', nuevosUsuarios);
+
+    //actualiza el usuario activo si es el que se está editando
+    const usuarioActivo = await this._storage?.get('usuarioActivo');
+    if (usuarioActivo && usuarioActivo.email === usuarioEditado.email) {
+      await this._storage?.set('usuarioActivo', usuarioEditado);
+    }
   }
 
   logout(): void {
     localStorage.removeItem('usuario');
-    //Aquí puedes agregar más lógica si es necesario (por ejemplo, limpiar tokens, etc.)
   }
 }
