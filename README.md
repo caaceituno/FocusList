@@ -3,7 +3,10 @@ Previo a la ejecución:
 ejecutar en consola:
 - npm install @angular/fire firebase
 - npm install @ionic/storage-angular
-
+- npm install cordova-plugin-calendar
+- npm install @awesome-cordova-plugins/calendar
+- npm install cordova-sqlite-storage
+- npm install @awesome-cordova-plugins/sqlite 
 Avance 1:
 
 - Creación de Proyecto con mas de una page ✅
