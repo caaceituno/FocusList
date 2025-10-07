@@ -1,5 +1,5 @@
 .notfound-toolbar {
-  --background: #fbb03c; /* mismo naranja cálido del header del home */
+  --background: #fbb03c;
   color: #ffffff;
   text-align: center;
   font-weight: 600;
@@ -35,7 +35,7 @@
 h2 {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #f68a1f; /* tono más intenso del mismo naranja */
+  color: #f68a1f;
   margin-bottom: 12px;
 }
 
@@ -49,13 +49,13 @@ p {
 /* === BOTÓN === */
 .notfound-btn {
   font-weight: 600;
-  --background: #f68a1f;
-  --background-activated: #e67b16;
-  --color: #fff;
+  --background: var(--ion-color-info);
+  --background-activated: var(--ion-color-info-shade);
+  --color: var(--ion-color-info-contrast);
   --border-radius: 10px;
   --padding-start: 16px;
   --padding-end: 16px;
-  box-shadow: 0 3px 8px rgba(246, 138, 31, 0.3);
+  box-shadow: 0 3px 8px rgba(108, 195, 213, 0.3); // sombra con el color info
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

@@ -35,3 +35,15 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+/* Clase global para botones info */
+.btn-info {
+  --background: var(--ion-color-info) !important;
+  --color: var(--ion-color-info-contrast) !important;
+  --background-activated: var(--ion-color-info-shade) !important;
+  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(108, 195, 213, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
