@@ -7,9 +7,18 @@
 <ion-content>
   <ng-container *ngIf="!loading; else loadingTemplate">
     <!-- 📅 Calendario superior -->
-    <div class="calendar-top">
-      <full-calendar [options]="calendarOptions"></full-calendar>
+    <div class="calendar-header">
+      <h2>{{ tituloMes }}</h2>
     </div>
+
+    <div
+      class="calendar-top"
+      (touchstart)="onTouchStart($event)"
+      (touchend)="onTouchEnd($event)"
+    >
+      <full-calendar #fullCalendar [options]="calendarOptions"></full-calendar>
+    </div>
+
 
     <!-- 📝 Lista de feriados -->
     <div class="event-list">
@@ -18,7 +27,7 @@
         <ion-item *ngFor="let evento of eventosMes" class="event-item">
           <ion-label>
             <h3>{{ evento.title }}</h3>
-            <p>{{ evento.start | date: 'EEEE d MMMM' }}</p>
+            <p>{{ formatFecha(evento.start) }}</p>
           </ion-label>
           <ion-icon name="calendar-outline" color="danger" slot="end"></ion-icon>
         </ion-item>

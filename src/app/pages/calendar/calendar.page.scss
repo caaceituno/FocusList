@@ -3,8 +3,13 @@ ion-content {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
 }
 
+//contenedor superior del calendario
 .calendar-top {
   width: 100%;
   background-color: #fffdf0;
@@ -12,37 +17,105 @@ ion-content {
   border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
+//FullCalendar cambios
+::ng-deep full-calendar {
+  width: 100%;
+  display: block;
+  font-size: 0.85rem;
+
+  .fc {
+    max-width: 100%;
+  }
+
+  .fc-toolbar {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.1rem;
+    color: #000;
+  }
+
+  .fc-button {
+    background-color: var(--ion-color-warning);
+    border: none;
+    color: #000;
+    font-weight: 500;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #ffd65a;
+    }
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 0.8rem;
+    color: #000;
+  }
+
+  .fc-event {
+    border-radius: 6px;
+    padding: 1px 3px;
+    margin: 1px 0;
+    background-color: #ff5c5c !important; //feriados
+    border: none;
+    color: white;
+  }
+
+  .fc-daygrid-day-frame {
+    padding: 2px !important;
+    background-color: #fffaf0;
+  }
+
+  .fc-daygrid-day.fc-day-today {
+    border: 2px solid #ffd65a !important; //borde día actual
+    box-sizing: border-box;
+  }
+
+  .fc-scrollgrid {
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+//estilo para la lista de eventos (feriados)
 .event-list {
   padding: 8px 16px;
   background-color: #fffdf0;
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #000;
+    text-align: center;
+  }
+
+  ion-item {
+    --background: #fffaf0;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  ion-label h3 {
+    margin: 0;
+    font-weight: 500;
+    color: #000;
+  }
+
+  ion-label p {
+    font-size: 0.9rem;
+    color: #444;
+    margin: 2px 0 0;
+  }
 }
 
-.event-list h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #000;
-}
-
-.event-item {
-  background: #fffaf0;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.event-item h3 {
-  margin: 0;
-  font-weight: 500;
-  color: #000;
-}
-
-.event-item p {
-  font-size: 0.9rem;
-  color: #444;
-  margin: 2px 0 0;
-}
-
+//estilo para el contenedor de carga
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -52,6 +125,51 @@ ion-content {
   color: var(--ion-color-warning);
 }
 
-.list-md{
-  background: none !important
+//diseño responsivo móvil
+@media (max-width: 420px) {
+  ::ng-deep full-calendar {
+    font-size: 0.75rem;
+
+    .fc-toolbar-title {
+      font-size: 1rem;
+    }
+
+    .fc-button {
+      font-size: 0.7rem;
+    }
+  }
+
+  .event-list h2 {
+    font-size: 1rem;
+  }
+}
+
+//elimina el fondo negro por default de fullcalendar
+.list-md {
+  background: none !important;
+}
+
+//header del calendario (titulo/mes)
+.calendar-header {
+  padding: 12px 16px 0 16px;
+  text-align: left;
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #000;
+    text-transform: capitalize;
+    margin: 0;
+    text-align: left;
+    transition: text-align 0.3s;
+  }
+
+  @media (orientation: landscape) {
+    text-align: center;
+    padding-top: 8px;
+
+    h2 {
+      text-align: center;
+    }
+  }
 }
