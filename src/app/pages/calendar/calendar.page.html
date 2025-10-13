@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar color="warning">
+    <ion-title>Calendario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="!loading; else loadingTemplate">
+    <!-- 📅 Calendario superior -->
+    <div class="calendar-top">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+
+    <!-- 📝 Lista de feriados -->
+    <div class="event-list">
+      <h2>Feriados del mes</h2>
+      <ion-list lines="none">
+        <ion-item *ngFor="let evento of eventosMes" class="event-item">
+          <ion-label>
+            <h3>{{ evento.title }}</h3>
+            <p>{{ evento.start | date: 'EEEE d MMMM' }}</p>
+          </ion-label>
+          <ion-icon name="calendar-outline" color="danger" slot="end"></ion-icon>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ng-container>
+
+  <!-- ⏳ Cargando -->
+  <ng-template #loadingTemplate>
+    <div class="loading-container">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <p>Cargando feriados...</p>
+    </div>
+  </ng-template>
+</ion-content>

@@ -44,6 +44,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/admin-users/admin-users.module').then( m => m.AdminUsersPageModule)
   },
   {
+    path: 'calendar',
+    loadChildren: () => import('./pages/calendar/calendar.module').then( m => m.CalendarPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'not-found'
   },
