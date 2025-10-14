@@ -1,27 +1,31 @@
 import { SQLite, SQLiteObject } from '@awesome-cordova-plugins/sqlite/ngx';
 import { Platform, ToastController } from '@ionic/angular';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Usuario } from '../../clases/usuario';
+import { Usuario } from 'src/app/clases/usuario';
 import { Injectable } from '@angular/core';
+
 
 @Injectable({
   providedIn: 'root'
 })
 
-
 export class Dbservice {
   public database!: SQLiteObject;
   tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario(id INTEGERPRIMARY KEY autoincrement, nombre VARCHAR(50) NOT NULL, apellido VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, contraseña VARCHAR(50) NOT NULL ;";
+  tblusuariosActivos:string = "CREATE TABLE IF NOT EXISTS usuariosActivos (id INTEGER PRIMARY KEY, FOREIGN KEY (id) REFERENCES usuario(id));";
+
 
   listaUsuarios = new BehaviorSubject<Usuario[]>([]);
+  listaUsuariosActivos = new BehaviorSubject<Usuario[]>([]);
   private isDbReady:
     BehaviorSubject<boolean> = new BehaviorSubject(false);
-  
+ 
   constructor(private sqlite: SQLite,
     private platform: Platform,
     public toastController: ToastController) {
     this.crearBD();
   }
+
 
   crearBD() {
     this.platform.ready().then(() => {
@@ -37,16 +41,20 @@ export class Dbservice {
     })
   }
 
+
   async crearTablas() {
   try {
     await this.database.executeSql(this.tblusuarios, []);
-    this.presentToast("Tabla creada");
+    await this.database.executeSql(this.tblusuariosActivos,[]);
+    this.presentToast("Tablas creada");
     this.cargarUsuarios();
+    this.cargarUsuariosActivos();
     this.isDbReady.next(true);
     } catch (error) {
     this.presentToast("Error en Crear Tabla: " + error);
     }
   }
+
 
   cargarUsuarios() {
     let items: Usuario[] = [];
@@ -65,11 +73,43 @@ export class Dbservice {
       }
     });
     this.listaUsuarios.next(items);
+
+
+    return items;
   }
+
+
+  async cargarUsuariosActivos (){
+    let usuariosActivos: Usuario[] = [];
+    this.database.executeSql('SELECT * FROM usuario u INNER JOIN usuariosActivos ua ON u.id = ua.id;',[])
+    .then(res =>{
+      if(res.rows.length > 0) {
+        for(let i= 0; i < res.rows.length; i++)
+          usuariosActivos.push({
+            id: res.rows.item(i).id,
+            nombre: res.rows.item(i).nombre,
+            apellido: res.rows.item(i).apellido,
+            email: res.row.item(i).email,
+            contraseña: res.row.item(i).contraseña
+          });
+      }
+    })
+    this.listaUsuariosActivos.next(usuariosActivos);
+
+
+    return usuariosActivos;
+  };
+
 
   async buscarusuario(id:any){
     await this.database.executeSql('select * from usuario where id=?',[id])
   }
+
+
+  async buscarUsuarioActivo(id:any){
+    await this.database.executeSql('SELECT * FROM usuario u INNER JOIN usuariosActivos ua ON u.id = ua.id where ua.id=?;',[id])
+  }
+
 
   async addUsuario (nombre:any,apellido:any, email:any, contraseña:any){
     let data = [nombre, apellido, email, contraseña]
@@ -77,25 +117,44 @@ export class Dbservice {
     this.cargarUsuarios();
   }
 
+
+  async addUsuarioActivo (id:any){
+    await this.database.executeSql('INSERT INTO usuariosActivos(id) values (?)',id)
+    this.cargarUsuariosActivos();
+  }
+
+
   async actualizarUsuario(id:any,nombre:any,apellido:any, email:any, contraseña:any){
     let data = [id,nombre,apellido,email,contraseña];
     await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contrseña=? WHERE id=?',data);
     this.cargarUsuarios();
 
+
   }
+
 
   async eliminarUsuario(id: any) {
     await this.database.executeSql('DELETE FROM usuario WHERE id=?', [id]);
     this.cargarUsuarios();
   }
 
+
+  async eliminarUsuarioActivo(id:any){
+    await this.database.executeSql('DELETE FROM usuariosActivos WHERE id=?',[id]);
+    this.cargarUsuariosActivos();
+  }
+
+
   dbState() {
     return this.isDbReady.asObservable();
   }
 
+
   fetcUsuario(): Observable<Usuario[]> {
     return this.listaUsuarios.asObservable();
   }
+
+
 
 
   async presentToast(mensaje: string) {
@@ -105,6 +164,9 @@ export class Dbservice {
     });
     toast.present();
   }
+
+
+
 
 
 
