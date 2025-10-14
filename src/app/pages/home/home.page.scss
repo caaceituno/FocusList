@@ -5,12 +5,12 @@ ion-content {
 }
 
 .welcome-card {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background-color: #fbb03c;
-    width: 100vw;
-    padding: calc(env(safe-area-inset-top, 48px) + 32px) 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #fbb03c;
+  width: 100vw;
+  padding: calc(env(safe-area-inset-top, 48px) + 32px) 12px 16px;
 }
 
 ion-avatar {
@@ -87,4 +87,8 @@ ion-footer {
       color: #ffffff; // resalta en tu color principal
     }
   }
+}
+
+.btn-nuevaTarea {
+  bottom: 72px;
 }

@@ -17,6 +17,8 @@ export class HomePage implements OnInit {
   tareasAtrasadas: any[] = [];
   tareasHoy: any[] = [];
   tareasProximas: any[] = [];
+  mostrarFormulario = false;
+  nuevaTarea = { titulo: '', descripcion: '', importancia: '', fecha: '' };
 
   constructor(
     private usuarioService: UsuarioService,
@@ -70,5 +72,20 @@ export class HomePage implements OnInit {
   logout() {
     this.usuarioService.logout();
     this.router.navigate(['/login']);
+  }
+
+  abrirFormulario() {
+    this.mostrarFormulario = true;
+  }
+
+  cerrarFormulario() {
+    this.mostrarFormulario = false;
+    this.nuevaTarea = { titulo: '', descripcion: '', importancia: '', fecha: '' };
+  }
+
+  guardarTarea() {
+    //aquí se puede agregar la lógica para guardar la tarea
+    console.log('Tarea guardada:', this.nuevaTarea);
+    this.cerrarFormulario();
   }
 }

@@ -52,6 +52,12 @@
 
 </ion-content>
 
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="btn-nuevaTarea">
+  <ion-fab-button color="primary" (click)="abrirFormulario()">
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
 <ion-footer>
   <div class="bottom-nav">
     <div class="nav-item">
@@ -70,3 +76,57 @@
     </div>
   </div>
 </ion-footer>
+
+<ion-modal [isOpen]="mostrarFormulario" (didDismiss)="cerrarFormulario()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Nueva Tarea</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="cerrarFormulario()">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <form (ngSubmit)="guardarTarea()">
+        <ion-item>
+          <ion-label position="stacked">Título</ion-label>
+          <ion-input [(ngModel)]="nuevaTarea.titulo" name="titulo" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Descripción</ion-label>
+          <ion-textarea [(ngModel)]="nuevaTarea.descripcion" name="descripcion"></ion-textarea>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Importancia</ion-label>
+          <ion-radio-group [(ngModel)]="nuevaTarea.importancia" name="importancia">
+            <ion-item>
+              <ion-label>Baja</ion-label>
+              <ion-radio slot="start" value="baja"></ion-radio>
+            </ion-item>
+            <ion-item>
+              <ion-label>Media</ion-label>
+              <ion-radio slot="start" value="media"></ion-radio>
+            </ion-item>
+            <ion-item>
+              <ion-label>Alta</ion-label>
+              <ion-radio slot="start" value="alta"></ion-radio>
+            </ion-item>
+          </ion-radio-group>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Selecciona una fecha</ion-label>
+          <ion-datetime
+            [(ngModel)]="nuevaTarea.fecha"
+            name="fecha"
+            display-format="DD/MM/YYYY"
+            min="2023-01-01"
+            max="2025-12-31"
+            required
+          ></ion-datetime>
+        </ion-item>
+        <ion-button expand="block" type="submit" color="primary">Guardar</ion-button>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -9,6 +9,15 @@ ion-content {
   --padding-bottom: 0;
 }
 
+.welcome-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #fbb03c;
+  width: 100vw;
+  padding: calc(env(safe-area-inset-top, 48px) + 32px) 12px 16px;
+}
+
 //contenedor superior del calendario
 .calendar-top {
   width: 100%;
