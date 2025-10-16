@@ -11,8 +11,8 @@ import { Injectable } from '@angular/core';
 
 export class Dbservice {
   public database!: SQLiteObject;
-  tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario(id INTEGERPRIMARY KEY autoincrement, nombre VARCHAR(50) NOT NULL, apellido VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, contraseña VARCHAR(50) NOT NULL ;";
-  tblusuariosActivos:string = "CREATE TABLE IF NOT EXISTS usuariosActivos (id INTEGER PRIMARY KEY, FOREIGN KEY (id) REFERENCES usuario(id));";
+  tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario (id INTEGER PRIMARY KEY AUTOINCREMENT,nombre VARCHAR(50) NOT NULL,apellido VARCHAR(50) NOT NULL,email VARCHAR(50) NOT NULL,contraseña VARCHAR(50) NOT NULL);";
+  tblusuariosActivos:string = "CREATE TABLE IF NOT EXISTS usuariosActivos (id INTEGER,FOREIGN KEY (id) REFERENCES usuario(id));";
 
 
   listaUsuarios = new BehaviorSubject<Usuario[]>([]);
@@ -23,37 +23,37 @@ export class Dbservice {
   constructor(private sqlite: SQLite,
     private platform: Platform,
     public toastController: ToastController) {
-    this.crearBD();
+    this.platform.ready().then(() => {
+      this.crearBD();
+    });
   }
 
 
   crearBD() {
-    this.platform.ready().then(() => {
-      this.sqlite.create({
-        name: 'focus_list_DB',
-        location: 'default'
-      }).then((db: SQLiteObject) => {
-        this.database = db;
-        this.presentToast("BD creada");
-        //llamo a crear la(s) tabla(s)
-        this.crearTablas();
-      }).catch(e => this.presentToast(e));
-    })
+    this.sqlite.create({
+      name: 'focus_list_DB',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      this.database = db;
+      this.presentToast("BD creada");
+      this.crearTablas();
+    }).catch(e => this.presentToast("Error creando BD: " + e));
   }
 
 
-  async crearTablas() {
+async crearTablas() {
   try {
     await this.database.executeSql(this.tblusuarios, []);
-    await this.database.executeSql(this.tblusuariosActivos,[]);
-    this.presentToast("Tablas creada");
+    await this.database.executeSql(this.tblusuariosActivos, []);
+    this.presentToast("Tablas creadas correctamente");
     this.cargarUsuarios();
     this.cargarUsuariosActivos();
     this.isDbReady.next(true);
-    } catch (error) {
-    this.presentToast("Error en Crear Tabla: " + error);
-    }
+  } catch (error) {
+    console.error("❌ Error al crear tablas:", error);
+    this.presentToast("Error en Crear Tabla: " + JSON.stringify(error));
   }
+}
 
 
   cargarUsuarios() {
@@ -66,8 +66,8 @@ export class Dbservice {
           id: res.rows.item(i).id,
           nombre: res.rows.item(i).nombre,
           apellido: res.rows.item(i).apellido,
-          email: res.row.item(i).email,
-          contraseña: res.row.item(i).contraseña
+          email: res.rows.item(i).email,
+          contraseña: res.rows.item(i).contraseña
         });
         }
       }
@@ -112,9 +112,14 @@ export class Dbservice {
 
 
   async addUsuario (nombre:any,apellido:any, email:any, contraseña:any){
-    let data = [nombre, apellido, email, contraseña]
-    await this.database.executeSql('INSERT INTO usuario(nombre,pellido,email,contraseña) values (?,?,?,?)',data);
-    this.cargarUsuarios();
+    try{
+      let data = [nombre, apellido, email, contraseña]
+      await this.database.executeSql('INSERT INTO usuario(nombre,apellido,email,contraseña) values (?,?,?,?)',data);
+      this.cargarUsuarios();
+    }catch(error){
+      console.error('Error al agregar usuario en sqlite:', error);
+    }
+    
   }
 
 
@@ -126,7 +131,7 @@ export class Dbservice {
 
   async actualizarUsuario(id:any,nombre:any,apellido:any, email:any, contraseña:any){
     let data = [id,nombre,apellido,email,contraseña];
-    await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contrseña=? WHERE id=?',data);
+    await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contraseña=? WHERE id=?',data);
     this.cargarUsuarios();
 
 

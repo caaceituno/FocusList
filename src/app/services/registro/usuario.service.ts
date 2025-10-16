@@ -19,16 +19,20 @@ export class UsuarioService {
   }
 
   async guardarUsuario(user: Users) {
-    await this.ready();
-    const usuarios = (await this._storage?.get('usuarios')) || [];
-    const existe = usuarios.find((u: Users) => u.email === user.email);
+    try{
+      await this.ready();
+      const usuarios = (await this._storage?.get('usuarios')) || [];
+      const existe = usuarios.find((u: Users) => u.email === user.email);
 
-    if (!existe) {
-      usuarios.unshift(user);
-      await this._storage?.set('usuarios', usuarios);
-      this.presentToast('Usuario registrado');
-    } else {
-      this.presentToast('El usuario ya existe');
+      if (!existe) {
+        usuarios.unshift(user);
+        await this._storage?.set('usuarios', usuarios);
+        this.presentToast('Usuario registrado');
+      } else {
+        this.presentToast('El usuario ya existe');
+      }
+    }catch(error){
+      console.error('Error al guardar usuario en localstorage: ', error);
     }
   }
 

@@ -37,7 +37,7 @@ export class LoginPage implements OnInit {
 
   async iniciarSesion() {
     const usuarios = await this.usuarioService.mostrarUsuarios();
-    const usuariosSql = await this.dbService.cargarUsuarios();
+    //const usuariosSql = await this.dbService.cargarUsuarios();
 
 
     if (!usuarios || usuarios.length === 0) {
@@ -46,10 +46,10 @@ export class LoginPage implements OnInit {
     }
 
 
-    if (!usuariosSql || usuariosSql.length===0){
-      this.presentToast('no hay usuarios guardados en la base de datos');
-      return;
-    }
+    //if (!usuariosSql || usuariosSql.length===0){
+    //  this.presentToast('no hay usuarios guardados en la base de datos');
+    //  return;
+    //}
 
 
     //buscar si el email y contraseña coinciden
@@ -60,24 +60,25 @@ export class LoginPage implements OnInit {
 
     if (registrado) {
       this.presentToast('Inicio de sesión exitoso');
-      await this.usuarioService.setUsuarioActivo(registrado);;
+      await this.usuarioService.setUsuarioActivo(registrado);
+      this.router.navigate(['/home']);
     } else {
       this.presentToast('Credenciales inválidas');
     }
 
 
-    const registrosql = usuariosSql.find(
-      i => i.email === this.usuario.email && i.contraseña === this.usuario.contrasena
-    );
+    //const registrosql = usuariosSql.find(
+    //  i => i.email === this.usuario.email && i.contraseña === this.usuario.contrasena
+    //);
 
 
-    if (registrosql){
-      this.presentToast('inicio de sesion desde base de datos completado')
-      await this.dbService.addUsuarioActivo(registrosql)
-      this.router.navigate(['/home']);
-    } else {
-      this.presentToast('algo salio terriblemente mla, compruea tus credenciales y vuelve a intentar')
-    }
+    //if (registrosql){
+    //  this.presentToast('inicio de sesion desde base de datos completado')
+    //  await this.dbService.addUsuarioActivo(registrosql)
+    //  this.router.navigate(['/home']);
+    //} else {
+    //  this.presentToast('algo salio terriblemente mla, compruea tus credenciales y vuelve a intentar')
+    //}
   };
 
 
