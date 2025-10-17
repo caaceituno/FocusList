@@ -25,7 +25,10 @@ registerLocaleData(localeEs);
     HttpClientModule
     
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy},SQLite,{ provide: LOCALE_ID, useValue: 'es-ES' }],
+  providers: [{ provide: RouteReuseStrategy,
+  useClass: IonicRouteStrategy},
+  SQLite,{ provide: LOCALE_ID,
+  useValue: 'es-ES' }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { ToastController } from '@ionic/angular';
 import { Users } from '../../interfaces/users';
+import { Dbservice } from '../SQLite/dbservice';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,11 @@ export class UsuarioService {
   private _storage: Storage | null = null;
   usuarios: Users[] = [];
 
-  constructor(private storage: Storage, private toastController: ToastController) {}
+  constructor(
+    private storage: Storage, 
+    private toastController: ToastController,
+    private dbService: Dbservice
+  ) {}
 
   private async ready() {
     if (!this._storage) {
@@ -19,20 +24,25 @@ export class UsuarioService {
   }
 
   async guardarUsuario(user: Users) {
-    try{
+    try {
       await this.ready();
       const usuarios = (await this._storage?.get('usuarios')) || [];
       const existe = usuarios.find((u: Users) => u.email === user.email);
 
       if (!existe) {
+        // Guardar en localStorage (solo en la lista de usuarios)
         usuarios.unshift(user);
         await this._storage?.set('usuarios', usuarios);
-        this.presentToast('Usuario registrado');
+
+        // Guardar en SQLite (solo en la tabla usuario)
+        await this.dbService.addUsuario(user.nombre, user.apellido, user.email, user.contrasena);
+        
+        this.presentToast('Usuario registrado correctamente');
       } else {
         this.presentToast('El usuario ya existe');
       }
-    }catch(error){
-      console.error('Error al guardar usuario en localstorage: ', error);
+    } catch(error) {
+      console.error('Error al guardar usuario: ', error);
     }
   }
 
@@ -42,8 +52,30 @@ export class UsuarioService {
   }
 
   async setUsuarioActivo(user: Users) {
-    await this.ready();
-    await this._storage?.set('usuarioActivo', user);
+    try {
+      await this.ready();
+      // Guardar en localStorage como usuario activo
+      await this._storage?.set('usuarioActivo', user);
+      
+      // Buscar el usuario en SQLite por email para obtener su ID
+      const usuariosSQLite = await this.dbService.cargarUsuarios();
+      const usuarioSQLite = usuariosSQLite.find(u => u.email === user.email);
+      
+      if (usuarioSQLite?.id) {
+        // Primero eliminar cualquier usuario activo existente
+        const usuariosActivos = await this.dbService.cargarUsuariosActivos();
+        for (const activo of usuariosActivos) {
+          if (activo.id) {
+            await this.dbService.eliminarUsuarioActivo(activo.id);
+          }
+        }
+        
+        // Agregar el nuevo usuario activo
+        await this.dbService.addUsuarioActivo(usuarioSQLite.id);
+      }
+    } catch(error) {
+      console.error('Error al establecer usuario activo: ', error);
+    }
   }
 
   async getUsuarioActivo(): Promise<Users | null> {
@@ -77,39 +109,102 @@ export class UsuarioService {
   }
 
   async borrarUsuario(email: string): Promise<void> {
-    await this.ready();
-    const usuarios = (await this._storage?.get('usuarios')) || [];
-    const nuevosUsuarios = usuarios.filter((u: Users) => u.email !== email);
-    await this._storage?.set('usuarios', nuevosUsuarios);
+    try {
+      await this.ready();
+      // Borrar de localStorage
+      const usuarios = (await this._storage?.get('usuarios')) || [];
+      const nuevosUsuarios = usuarios.filter((u: Users) => u.email !== email);
+      await this._storage?.set('usuarios', nuevosUsuarios);
 
-    //si el usuario borrado era el activo se elimina
-    const usuarioActivo = await this._storage?.get('usuarioActivo');
-    if (usuarioActivo && usuarioActivo.email === email) {
-      await this._storage?.remove('usuarioActivo');
+      // Si el usuario borrado era el activo se elimina
+      const usuarioActivo = await this._storage?.get('usuarioActivo');
+      if (usuarioActivo && usuarioActivo.email === email) {
+        await this._storage?.remove('usuarioActivo');
+      }
+
+      // Borrar de SQLite
+      const usuariosSQLite = await this.dbService.cargarUsuarios();
+      const usuarioSQLite = usuariosSQLite.find(u => u.email === email);
+      if (usuarioSQLite?.id) {
+        await this.dbService.eliminarUsuarioActivo(usuarioSQLite.id);
+        await this.dbService.eliminarUsuario(usuarioSQLite.id);
+      }
+    } catch(error) {
+      console.error('Error al borrar usuario: ', error);
     }
   }
 
   async borrarTodosUsuarios(): Promise<void> {
-    await this.ready();
-    await this._storage?.set('usuarios', []);
-  }
+    try {
+      await this.ready();
+      // Borrar de localStorage
+      await this._storage?.set('usuarios', []);
+      await this._storage?.remove('usuarioActivo');
 
-  async editarUsuario(usuarioEditado: Users): Promise<void> {
-    await this.ready();
-    const usuarios = (await this._storage?.get('usuarios')) || [];
-    const nuevosUsuarios = usuarios.map((u: Users) =>
-      u.email === usuarioEditado.email ? usuarioEditado : u
-    );
-    await this._storage?.set('usuarios', nuevosUsuarios);
-
-    //actualiza el usuario activo si es el que se está editando
-    const usuarioActivo = await this._storage?.get('usuarioActivo');
-    if (usuarioActivo && usuarioActivo.email === usuarioEditado.email) {
-      await this._storage?.set('usuarioActivo', usuarioEditado);
+      // Borrar de SQLite
+      const usuarios = await this.dbService.cargarUsuarios();
+      for (const usuario of usuarios) {
+        if (usuario.id) {
+          await this.dbService.eliminarUsuarioActivo(usuario.id);
+          await this.dbService.eliminarUsuario(usuario.id);
+        }
+      }
+    } catch(error) {
+      console.error('Error al borrar todos los usuarios: ', error);
     }
   }
 
-  logout(): void {
-    localStorage.removeItem('usuario');
+  async editarUsuario(usuarioEditado: Users): Promise<void> {
+    try {
+      await this.ready();
+      // Actualizar en localStorage
+      const usuarios = (await this._storage?.get('usuarios')) || [];
+      const nuevosUsuarios = usuarios.map((u: Users) =>
+        u.email === usuarioEditado.email ? usuarioEditado : u
+      );
+      await this._storage?.set('usuarios', nuevosUsuarios);
+
+      // Actualizar el usuario activo si es el que se está editando
+      const usuarioActivo = await this._storage?.get('usuarioActivo');
+      if (usuarioActivo && usuarioActivo.email === usuarioEditado.email) {
+        await this._storage?.set('usuarioActivo', usuarioEditado);
+      }
+
+      // Actualizar en SQLite
+      const usuariosSQLite = await this.dbService.cargarUsuarios();
+      const usuarioSQLite = usuariosSQLite.find(u => u.email === usuarioEditado.email);
+      if (usuarioSQLite?.id) {
+        await this.dbService.actualizarUsuario(
+          usuarioSQLite.id,
+          usuarioEditado.nombre,
+          usuarioEditado.apellido,
+          usuarioEditado.email,
+          usuarioEditado.contrasena
+        );
+      }
+    } catch(error) {
+      console.error('Error al editar usuario: ', error);
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      // Eliminar usuario activo de localStorage
+      await this._storage?.remove('usuarioActivo');
+
+      // Eliminar de la tabla usuariosActivos en SQLite
+      const usuarioActivo = await this._storage?.get('usuarioActivo');
+      if (usuarioActivo) {
+        // Buscar el ID del usuario en SQLite
+        const usuariosSQLite = await this.dbService.cargarUsuarios();
+        const usuarioSQLite = usuariosSQLite.find(u => u.email === usuarioActivo.email);
+        if (usuarioSQLite?.id) {
+          // Solo eliminar de la tabla usuariosActivos
+          await this.dbService.eliminarUsuarioActivo(usuarioSQLite.id);
+        }
+      }
+    } catch(error) {
+      console.error('Error al cerrar sesión: ', error);
+    }
   }
 }
