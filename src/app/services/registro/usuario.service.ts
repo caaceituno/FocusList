@@ -251,4 +251,41 @@ export class UsuarioService {
       console.error('Error al actualizar foto de perfil: ', error);
     }
   }
+
+  async eliminarFotoPerfil(email: string): Promise<void> {
+    try {
+      await this.ready();
+
+      // Actualizar en Storage
+      const usuarios = (await this._storage?.get('usuarios')) || [];
+      const nuevosUsuarios = usuarios.map((u: Users) =>
+        u.email === email ? { ...u, fotoPerfil: undefined } : u
+      );
+      await this._storage?.set('usuarios', nuevosUsuarios);
+
+      // Actualizar usuario activo
+      const usuarioActivo = await this._storage?.get('usuarioActivo');
+      if (usuarioActivo && usuarioActivo.email === email) {
+        await this._storage?.set('usuarioActivo', { ...usuarioActivo, fotoPerfil: undefined });
+      }
+
+      // Actualizar en SQLite (poner null)
+      const usuariosSQLite = await this.dbService.cargarUsuarios();
+      const usuarioSQLite = usuariosSQLite.find((u: any) => u.email === email);
+      if (usuarioSQLite?.id) {
+        await this.dbService.actualizarUsuario(
+          usuarioSQLite.id,
+          usuarioSQLite.nombre,
+          usuarioSQLite.apellido,
+          usuarioSQLite.email,
+          usuarioSQLite.contraseña,
+          null // limpiar foto en BD
+        );
+      }
+
+      await this.presentToast('Foto de perfil eliminada');
+    } catch (e) {
+      console.error('Error al eliminar foto de perfil:', e);
+    }
+  }
 }

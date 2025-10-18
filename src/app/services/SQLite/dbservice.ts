@@ -46,12 +46,12 @@ async crearTablas() {
   try {
     await this.database.executeSql(this.tblusuarios, []);
     await this.database.executeSql(this.tblusuariosActivos, []);
-    this.presentToast("Tablas creadas correctamente");
+    console.log('Tablas SQLite inicializadas');
     this.cargarUsuarios();
     this.cargarUsuariosActivos();
     this.isDbReady.next(true);
   } catch (error) {
-    console.error("❌ Error al crear tablas:", error);
+    console.error('Error al crear las tablas:', error);
     this.presentToast("Error en Crear Tabla: " + JSON.stringify(error));
   }
 }

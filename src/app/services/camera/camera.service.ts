@@ -12,9 +12,10 @@ export class CameraService {
     try {
       const image = await Camera.getPhoto({
         quality: 90,
-        allowEditing: true,
+        allowEditing: false, //quitar editor
         resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera
+        source: CameraSource.Camera,
+        saveToGallery: false
       });
       
       return image.dataUrl;
@@ -28,7 +29,7 @@ export class CameraService {
     try {
       const image = await Camera.getPhoto({
         quality: 90,
-        allowEditing: true,
+        allowEditing: false, // quitar editor
         resultType: CameraResultType.DataUrl,
         source: CameraSource.Photos
       });

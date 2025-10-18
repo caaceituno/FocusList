@@ -93,37 +93,51 @@ export class HomePage implements OnInit {
   }
 
   async cambiarFotoPerfil() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Cambiar foto de perfil',
-      buttons: [
-        {
-          text: 'Tomar foto',
-          icon: 'camera',
-          handler: async () => {
-            const foto = await this.cameraService.tomarFoto();
-            if (foto && this.usuario) {
-              await this.usuarioService.actualizarFotoPerfil(this.usuario.email, foto);
-              await this.cargarUsuario();
-            }
+    const buttons: any[] = [
+      {
+        text: 'Tomar foto',
+        icon: 'camera',
+        handler: async () => {
+          const foto = await this.cameraService.tomarFoto();
+          if (foto && this.usuario) {
+            await this.usuarioService.actualizarFotoPerfil(this.usuario.email, foto);
+            await this.cargarUsuario();
           }
-        },
-        {
-          text: 'Seleccionar de galería',
-          icon: 'images',
-          handler: async () => {
-            const foto = await this.cameraService.seleccionarDeGaleria();
-            if (foto && this.usuario) {
-              await this.usuarioService.actualizarFotoPerfil(this.usuario.email, foto);
-              await this.cargarUsuario();
-            }
-          }
-        },
-        {
-          text: 'Cancelar',
-          icon: 'close',
-          role: 'cancel'
         }
-      ]
+      },
+      {
+        text: 'Seleccionar de galería',
+        icon: 'images',
+        handler: async () => {
+          const foto = await this.cameraService.seleccionarDeGaleria();
+          if (foto && this.usuario) {
+            await this.usuarioService.actualizarFotoPerfil(this.usuario.email, foto);
+            await this.cargarUsuario();
+          }
+        }
+      },
+    ];
+
+    // Si ya existe una foto, agregamos "Eliminar foto"
+    if (this.usuario?.fotoPerfil) {
+      buttons.push({
+        text: 'Eliminar foto',
+        icon: 'trash',
+        role: 'destructive',
+        handler: async () => {
+          if (this.usuario) {
+            await this.usuarioService.eliminarFotoPerfil(this.usuario.email);
+            await this.cargarUsuario();
+          }
+        }
+      });
+    }
+
+    buttons.push({ text: 'Cancelar', icon: 'close', role: 'cancel' });
+
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Foto de perfil',
+      buttons
     });
     await actionSheet.present();
   }

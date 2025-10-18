@@ -33,3 +33,7 @@ Avance 3:
 Avance 4:
 
 - Consumo de API (feriados) ✅
+
+Avance 5:
+
+- API's Nativas (cámara) ✅

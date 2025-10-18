@@ -1,12 +1,14 @@
 <ion-header class="welcome-header" translucent="true">
   <ion-toolbar>
     <div class="welcome-card">
-      <ion-avatar (click)="cambiarFotoPerfil()" class="avatar-button">
-        <img [src]="usuario?.fotoPerfil || 'assets/icon/user2.svg'" alt="Usuario" class="user" />
-        <div class="camera-overlay">
-          <ion-icon name="camera" class="camera-icon"></ion-icon>
-        </div>
-      </ion-avatar>
+      <div class="avatar-container" (click)="cambiarFotoPerfil()">
+        <ion-avatar>
+          <img [src]="usuario?.fotoPerfil || 'assets/icon/user2.svg'" alt="Usuario" class="user" />
+        </ion-avatar>
+        <button class="edit-avatar-btn">
+          <ion-icon [name]="usuario?.fotoPerfil ? 'pencil' : 'add'"></ion-icon>
+        </button>
+      </div>
       <div>
         <h2 class="welcome-title">¡Bienvenido/a {{ usuario?.nombre }}!</h2>
         <p class="welcome-subtitle">¿Listo/a para revisar tus actividades?</p>
