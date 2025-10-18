@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { UsuarioService } from '../../services/registro/usuario.service';
-import { Users } from '../../interfaces/users';
-import { Storage } from '@ionic/storage-angular'; //para leer las tareas guardadas
 import { Router } from '@angular/router';
+import { Storage } from '@ionic/storage-angular';
+import { UsuarioService } from 'src/app/services/registro/usuario.service';
+import { Users } from 'src/app/interfaces/users';
+import { CameraService } from 'src/app/services/camera/camera.service';
+import { ActionSheetController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +13,6 @@ import { Router } from '@angular/router';
   standalone: false,
 })
 export class HomePage implements OnInit {
-
   usuario: Users | null = null;
   tareas: any[] = [];
   tareasAtrasadas: any[] = [];
@@ -23,7 +24,9 @@ export class HomePage implements OnInit {
   constructor(
     private usuarioService: UsuarioService,
     private storage: Storage,
-    private router: Router
+    private router: Router,
+    private cameraService: CameraService,
+    private actionSheetController: ActionSheetController
   ) {}
 
   async ngOnInit() {
@@ -87,5 +90,41 @@ export class HomePage implements OnInit {
     //aquí se puede agregar la lógica para guardar la tarea
     console.log('Tarea guardada:', this.nuevaTarea);
     this.cerrarFormulario();
+  }
+
+  async cambiarFotoPerfil() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Cambiar foto de perfil',
+      buttons: [
+        {
+          text: 'Tomar foto',
+          icon: 'camera',
+          handler: async () => {
+            const foto = await this.cameraService.tomarFoto();
+            if (foto && this.usuario) {
+              await this.usuarioService.actualizarFotoPerfil(this.usuario.email, foto);
+              await this.cargarUsuario();
+            }
+          }
+        },
+        {
+          text: 'Seleccionar de galería',
+          icon: 'images',
+          handler: async () => {
+            const foto = await this.cameraService.seleccionarDeGaleria();
+            if (foto && this.usuario) {
+              await this.usuarioService.actualizarFotoPerfil(this.usuario.email, foto);
+              await this.cargarUsuario();
+            }
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
+    await actionSheet.present();
   }
 }

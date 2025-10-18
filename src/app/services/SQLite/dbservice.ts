@@ -11,7 +11,7 @@ import { Injectable } from '@angular/core';
 
 export class Dbservice {
   public database!: SQLiteObject;
-  tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario (id INTEGER PRIMARY KEY AUTOINCREMENT,nombre VARCHAR(50) NOT NULL,apellido VARCHAR(50) NOT NULL,email VARCHAR(50) NOT NULL,contraseña VARCHAR(50) NOT NULL);";
+  tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(50) NOT NULL, apellido VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, contraseña VARCHAR(50) NOT NULL, fotoPerfil TEXT);";
   tblusuariosActivos:string = "CREATE TABLE IF NOT EXISTS usuariosActivos (id INTEGER,FOREIGN KEY (id) REFERENCES usuario(id));";
 
 
@@ -112,27 +112,25 @@ async crearTablas() {
   }
 
 
-  async addUsuario (nombre:any,apellido:any, email:any, contraseña:any){
-    try{
-      let data = [nombre, apellido, email, contraseña]
-      await this.database.executeSql('INSERT INTO usuario(nombre,apellido,email,contraseña) values (?,?,?,?)',data);
+  async addUsuario (nombre:any,apellido:any, email:any, contraseña:any, fotoPerfil?: any) {
+    try {
+      let data = [nombre, apellido, email, contraseña, fotoPerfil || null];
+      await this.database.executeSql('INSERT INTO usuario(nombre, apellido, email, contraseña, fotoPerfil) values (?,?,?,?,?)', data);
       this.cargarUsuarios();
-    }catch(error){
+    } catch (error) {
       console.error('Error al agregar usuario en sqlite:', error);
     }
-    
   }
-
-
+  
   async addUsuarioActivo (id:any){
     await this.database.executeSql('INSERT INTO usuariosActivos(id) values (?)',id)
     this.cargarUsuariosActivos();
   }
 
 
-  async actualizarUsuario(id:any,nombre:any,apellido:any, email:any, contraseña:any){
-    let data = [id,nombre,apellido,email,contraseña];
-    await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contraseña=? WHERE id=?',data);
+  async actualizarUsuario(id:any,nombre:any,apellido:any, email:any, contraseña:any, fotoPerfil?: any) {
+    let data = [nombre, apellido, email, contraseña, fotoPerfil || null, id];
+    await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contraseña=?, fotoPerfil=? WHERE id=?', data);
     this.cargarUsuarios();
 
 

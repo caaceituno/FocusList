@@ -26,6 +26,7 @@
     "@awesome-cordova-plugins/sqlite": "^8.1.0",
     "@capacitor/android": "7.4.3",
     "@capacitor/app": "7.0.2",
+    "@capacitor/camera": "^7.0.2",
     "@capacitor/core": "7.4.3",
     "@capacitor/haptics": "7.0.2",
     "@capacitor/keyboard": "7.0.2",

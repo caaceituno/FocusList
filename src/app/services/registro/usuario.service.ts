@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
+import { Users } from 'src/app/interfaces/users';
 import { ToastController } from '@ionic/angular';
-import { Users } from '../../interfaces/users';
 import { Dbservice } from '../SQLite/dbservice';
 
 @Injectable({
@@ -15,11 +15,18 @@ export class UsuarioService {
     private storage: Storage, 
     private toastController: ToastController,
     private dbService: Dbservice
-  ) {}
+  ) {
+    this.init();
+  }
+
+  async init() {
+    const storage = await this.storage.create();
+    this._storage = storage;
+  }
 
   private async ready() {
     if (!this._storage) {
-      this._storage = await this.storage.create();
+      await this.init();
     }
   }
 
@@ -99,13 +106,13 @@ export class UsuarioService {
     return (await this._storage?.get('welcomeShown')) === true;
   }
 
-  private async presentToast(msg: string) {
+  async presentToast(message: string) {
     const toast = await this.toastController.create({
-      message: msg,
+      message: message,
       duration: 2000,
-      position: 'top'
+      position: 'bottom'
     });
-    await toast.present();
+    toast.present();
   }
 
   async borrarUsuario(email: string): Promise<void> {
@@ -205,6 +212,43 @@ export class UsuarioService {
       }
     } catch(error) {
       console.error('Error al cerrar sesión: ', error);
+    }
+  }
+
+  async actualizarFotoPerfil(email: string, fotoPerfil: string): Promise<void> {
+    try {
+      await this.ready();
+      
+      // Actualizar en localStorage
+      const usuarios = (await this._storage?.get('usuarios')) || [];
+      const nuevosUsuarios = usuarios.map((u: Users) =>
+        u.email === email ? { ...u, fotoPerfil } : u
+      );
+      await this._storage?.set('usuarios', nuevosUsuarios);
+
+      // Actualizar usuario activo si es el mismo
+      const usuarioActivo = await this._storage?.get('usuarioActivo');
+      if (usuarioActivo && usuarioActivo.email === email) {
+        await this._storage?.set('usuarioActivo', { ...usuarioActivo, fotoPerfil });
+      }
+
+      // Actualizar en SQLite
+      const usuariosSQLite = await this.dbService.cargarUsuarios();
+      const usuarioSQLite = usuariosSQLite.find(u => u.email === email);
+      if (usuarioSQLite?.id) {
+        await this.dbService.actualizarUsuario(
+          usuarioSQLite.id,
+          usuarioSQLite.nombre,
+          usuarioSQLite.apellido,
+          usuarioSQLite.email,
+          usuarioSQLite.contraseña,
+          fotoPerfil
+        );
+      }
+      
+      this.presentToast('Foto de perfil actualizada');
+    } catch(error) {
+      console.error('Error al actualizar foto de perfil: ', error);
     }
   }
 }

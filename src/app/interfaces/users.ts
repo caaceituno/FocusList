@@ -3,4 +3,5 @@ export interface Users {
   apellido: string;
   email: string;
   contrasena: string;
+  fotoPerfil?: string;
 }
