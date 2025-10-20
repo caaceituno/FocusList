@@ -112,11 +112,11 @@ export class HomePage implements OnInit {
 
   private validarTarea(): boolean {
     if (!this.nuevaTarea.titulo) {
-      // Aquí podrías mostrar un mensaje de error
+      //aqui se podria mostrar un mensaje de error
       return false;
     }
     if (!this.nuevaTarea.fecha) {
-      // Aquí podrías mostrar un mensaje de error
+      //aqui se podria mostrar un mensaje de error
       return false;
     }
     return true;
@@ -148,7 +148,7 @@ export class HomePage implements OnInit {
       },
     ];
 
-    // Si ya existe una foto, agregamos "Eliminar foto"
+    //si ya existe una foto se agrega "Eliminar foto"
     if (this.usuario?.fotoPerfil) {
       buttons.push({
         text: 'Eliminar foto',

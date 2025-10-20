@@ -11,7 +11,7 @@ import { FullCalendarComponent } from '@fullcalendar/angular';
   standalone: false,
 })
 export class CalendarPage implements OnInit {
-  @ViewChild('fullCalendar') fullCalendar!: FullCalendarComponent; // 👈
+  @ViewChild('fullCalendar') fullCalendar!: FullCalendarComponent;
   calendarOptions!: CalendarOptions;
   loading = true;
   allFeriados: any[] = [];
@@ -60,7 +60,7 @@ export class CalendarPage implements OnInit {
   handleMonthChange(arg: any) {
     const mitadRango = new Date((arg.start.getTime() + arg.end.getTime()) / 2);
     this.updateEventosMes(mitadRango);
-    this.updateTituloMes(mitadRango); // 👈 Agrega esta línea
+    this.updateTituloMes(mitadRango);
   }
 
   updateEventosMes(fecha: Date) {
@@ -75,11 +75,11 @@ export class CalendarPage implements OnInit {
   updateTituloMes(fecha: Date) {
     const opciones: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
     let texto = fecha.toLocaleDateString('es-ES', opciones);
-    texto = texto.replace(' de ', ' '); //elimina el "de" uesto por default del idioma español
+    texto = texto.replace(' de ', ' ');
     this.tituloMes = texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 
-  // ✅ Detectar swipe manualmente
+  //detectar swipe manualmente
   onTouchStart(event: TouchEvent) {
     this.touchStartX = event.changedTouches[0].screenX;
   }
@@ -104,16 +104,15 @@ export class CalendarPage implements OnInit {
 
     const fechaActual = calendarApi.getDate();
     this.updateEventosMes(fechaActual);
-    this.updateTituloMes(fechaActual); // 👈 Agrega esta línea
+    this.updateTituloMes(fechaActual);
   }
 
   formatFecha(fecha: string | Date): string {
     const date = new Date(fecha);
     const opciones: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
     let texto = date.toLocaleDateString('es-ES', opciones);
-    texto = texto.replace(',', ''); // quita la coma
+    texto = texto.replace(',', '');
 
-    // Capitaliza solo las palabras excepto "de"
     texto = texto
       .split(' ')
       .map(word => word === 'de' ? word : word.charAt(0).toUpperCase() + word.slice(1))
