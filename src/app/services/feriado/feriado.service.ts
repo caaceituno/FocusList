@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FeriadosService {
-  private apiUrl = 'https://api.boostr.cl/holidays/2025';
+  private apiUrl = 'https://api.boostr.cl/holidays';
 
   constructor(private http: HttpClient) {}
 

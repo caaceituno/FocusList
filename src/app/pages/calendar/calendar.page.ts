@@ -3,6 +3,7 @@ import { CalendarOptions, CalendarApi } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FullCalendarComponent } from '@fullcalendar/angular';
+import { FeriadosService } from '../../services/feriado/feriado.service';
 
 @Component({
   selector: 'app-calendar',
@@ -19,38 +20,41 @@ export class CalendarPage implements OnInit {
   tituloMes = '';
   diaActual = this.formatFecha(new Date());
 
+  constructor(private feriadosService: FeriadosService) {}
+
   touchStartX = 0;
   touchEndX = 0;
 
-  async ngOnInit() {
-    try {
-      const response = await fetch('https://api.boostr.cl/holidays');
-      const data = await response.json();
+  ngOnInit() {
+    this.feriadosService.obtenerFeriados().subscribe({
+      next: (data) => {
+        this.allFeriados = (data.data || data || []).map((feriado: any) => ({
+          title: feriado.title || feriado.name || 'Feriado',
+          start: feriado.date,
+          allDay: true,
+          color: '#ff5c5c',
+        }));
 
-      this.allFeriados = (data.data || data || []).map((feriado: any) => ({
-        title: feriado.title || feriado.name || 'Feriado',
-        start: feriado.date,
-        allDay: true,
-        color: '#ff5c5c',
-      }));
+        this.calendarOptions = {
+          initialView: 'dayGridMonth',
+          plugins: [dayGridPlugin, interactionPlugin],
+          locale: 'es',
+          height: 'auto',
+          headerToolbar: false,
+          events: this.allFeriados,
+          dateClick: this.handleDateClick.bind(this),
+          datesSet: this.handleMonthChange.bind(this),
+        };
 
-      this.calendarOptions = {
-        initialView: 'dayGridMonth',
-        plugins: [dayGridPlugin, interactionPlugin],
-        locale: 'es',
-        height: 'auto',
-        headerToolbar: false,
-        events: this.allFeriados,
-        dateClick: this.handleDateClick.bind(this),
-        datesSet: this.handleMonthChange.bind(this),
-      };
-
-      this.updateEventosMes(new Date());
-    } catch (error) {
-      console.error('Error cargando feriados:', error);
-    } finally {
-      this.loading = false;
-    }
+        this.updateEventosMes(new Date());
+      },
+      error: (error) => {
+        console.error('Error cargando feriados:', error);
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 
   handleDateClick(arg: any) {
