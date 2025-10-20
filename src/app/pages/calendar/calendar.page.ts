@@ -19,6 +19,7 @@ export class CalendarPage implements OnInit {
   eventosMes: any[] = [];
   tituloMes = '';
   diaActual = this.formatFecha(new Date());
+  annio: number = new Date().getFullYear();
 
   constructor(private feriadosService: FeriadosService) {}
 
@@ -26,9 +27,17 @@ export class CalendarPage implements OnInit {
   touchEndX = 0;
 
   ngOnInit() {
-    this.feriadosService.obtenerFeriados().subscribe({
+    this.feriadosService.obtenerFeriados(this.annio).subscribe({
       next: (data) => {
-        this.allFeriados = (data.data || data || []).map((feriado: any) => ({
+
+        console.log('🔍 RAW DATA FERIADOS:', data);
+        const rawData = Array.isArray(data)
+          ? data
+          : data?.data
+          ? data.data
+          : data[this.annio] || [];
+
+        this.allFeriados = rawData.map((feriado: any) => ({
           title: feriado.title || feriado.name || 'Feriado',
           start: feriado.date,
           allDay: true,
@@ -63,16 +72,41 @@ export class CalendarPage implements OnInit {
 
   handleMonthChange(arg: any) {
     const mitadRango = new Date((arg.start.getTime() + arg.end.getTime()) / 2);
-    this.updateEventosMes(mitadRango);
+    this.annio = mitadRango.getFullYear();
+    console.log('Año actual del calendario:', this.annio);
+    
+    //cargar feriados del año si cambiamos de año
+    this.feriadosService.obtenerFeriados(this.annio).subscribe({
+      next: (data) => {
+        const rawData = Array.isArray(data)
+          ? data
+          : data?.data
+          ? data.data
+          : data[this.annio] || [];
+
+        this.allFeriados = rawData.map((feriado: any) => ({
+          title: feriado.title || feriado.name || 'Feriado',
+          start: feriado.date,
+          allDay: true,
+          color: '#ff5c5c',
+        }));
+        const calendarApi = this.fullCalendar.getApi();
+        calendarApi.removeAllEvents();
+        calendarApi.addEventSource(this.allFeriados);
+        this.updateEventosMes(mitadRango);
+      },
+      error: (error) => console.error('Error cargando feriados:', error)
+    });
+    
     this.updateTituloMes(mitadRango);
   }
 
   updateEventosMes(fecha: Date) {
     const mes = fecha.getMonth();
-    const año = fecha.getFullYear();
+    const anio = fecha.getFullYear();
     this.eventosMes = this.allFeriados.filter((e) => {
       const d = new Date(e.start);
-      return d.getMonth() === mes && d.getFullYear() === año;
+      return d.getMonth() === mes && d.getFullYear() === anio;
     });
   }
 
