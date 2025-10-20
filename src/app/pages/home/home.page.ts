@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Storage } from '@ionic/storage-angular';
 import { UsuarioService } from 'src/app/services/registro/usuario.service';
 import { Users } from 'src/app/interfaces/users';
 import { CameraService } from 'src/app/services/camera/camera.service';
 import { ActionSheetController } from '@ionic/angular';
+import { TareasService } from 'src/app/services/tareas/tareas.service';
+import { Tarea } from 'src/app/interfaces/tarea';
 
 @Component({
   selector: 'app-home',
@@ -14,23 +15,22 @@ import { ActionSheetController } from '@ionic/angular';
 })
 export class HomePage implements OnInit {
   usuario: Users | null = null;
-  tareas: any[] = [];
-  tareasAtrasadas: any[] = [];
-  tareasHoy: any[] = [];
-  tareasProximas: any[] = [];
+  tareas: Tarea[] = [];
+  tareasAtrasadas: Tarea[] = [];
+  tareasHoy: Tarea[] = [];
+  tareasProximas: Tarea[] = [];
   mostrarFormulario = false;
-  nuevaTarea = { titulo: '', descripcion: '', importancia: '', fecha: '' };
+  nuevaTarea: Partial<Tarea> = { titulo: '', descripcion: '', importancia: '', fecha: '' };
 
   constructor(
     private usuarioService: UsuarioService,
-    private storage: Storage,
     private router: Router,
     private cameraService: CameraService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private tareasService: TareasService
   ) {}
 
   async ngOnInit() {
-    await this.storage.create();
     await this.cargarUsuario();
     await this.cargarTareas();
   }
@@ -46,14 +46,15 @@ export class HomePage implements OnInit {
   }
 
   private async cargarTareas() {
-    const tareasGuardadas = await this.storage.get('tareas') || [];
-    this.tareas = tareasGuardadas;
-    this.clasificarTareas();
+    if (this.usuario?.id) {
+      this.tareas = await this.tareasService.obtenerTareas(this.usuario.id);
+      this.clasificarTareas();
+    }
   }
 
   private clasificarTareas() {
     const hoy = new Date();
-    this.tareasAtrasadas = this.tareas.filter(t => new Date(t.fecha) < hoy);
+    this.tareasAtrasadas = this.tareas.filter(t => new Date(t.fecha) < hoy && !this.esHoy(t.fecha));
     this.tareasHoy = this.tareas.filter(t => this.esHoy(t.fecha));
     this.tareasProximas = this.tareas.filter(t => new Date(t.fecha) > hoy && !this.esHoy(t.fecha));
 
@@ -83,13 +84,42 @@ export class HomePage implements OnInit {
 
   cerrarFormulario() {
     this.mostrarFormulario = false;
-    this.nuevaTarea = { titulo: '', descripcion: '', importancia: '', fecha: '' };
+    this.nuevaTarea = { 
+      titulo: '', 
+      descripcion: '', 
+      importancia: '', 
+      fecha: '' 
+    };
   }
 
-  guardarTarea() {
-    //aquí se puede agregar la lógica para guardar la tarea
-    console.log('Tarea guardada:', this.nuevaTarea);
-    this.cerrarFormulario();
+  async guardarTarea() {
+    if (this.usuario?.id && this.validarTarea()) {
+      const tarea: Tarea = {
+        titulo: this.nuevaTarea.titulo || '',
+        descripcion: this.nuevaTarea.descripcion || '',
+        importancia: this.nuevaTarea.importancia || '',
+        fecha: this.nuevaTarea.fecha || '',
+        usuario_id: this.usuario.id
+      };
+      
+      const guardado = await this.tareasService.guardarTarea(tarea);
+      if (guardado) {
+        await this.cargarTareas();
+        this.cerrarFormulario();
+      }
+    }
+  }
+
+  private validarTarea(): boolean {
+    if (!this.nuevaTarea.titulo) {
+      // Aquí podrías mostrar un mensaje de error
+      return false;
+    }
+    if (!this.nuevaTarea.fecha) {
+      // Aquí podrías mostrar un mensaje de error
+      return false;
+    }
+    return true;
   }
 
   async cambiarFotoPerfil() {

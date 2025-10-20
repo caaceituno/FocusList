@@ -3,6 +3,7 @@ import { Platform, ToastController } from '@ionic/angular';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Usuario } from 'src/app/clases/usuario';
 import { Injectable } from '@angular/core';
+import { Tarea } from 'src/app/interfaces/tarea';
 
 
 @Injectable({
@@ -13,12 +14,13 @@ export class Dbservice {
   public database!: SQLiteObject;
   tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(50) NOT NULL, apellido VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, contraseña VARCHAR(50) NOT NULL, fotoPerfil TEXT);";
   tblusuariosActivos:string = "CREATE TABLE IF NOT EXISTS usuariosActivos (id INTEGER,FOREIGN KEY (id) REFERENCES usuario(id));";
+  tbltareas:string = "CREATE TABLE IF NOT EXISTS tareas (id INTEGER PRIMARY KEY AUTOINCREMENT, titulo VARCHAR(100) NOT NULL, descripcion TEXT, importancia VARCHAR(20), fecha DATE, usuario_id INTEGER, FOREIGN KEY (usuario_id) REFERENCES usuario(id));";
 
 
   listaUsuarios = new BehaviorSubject<Usuario[]>([]);
   listaUsuariosActivos = new BehaviorSubject<Usuario[]>([]);
-  private isDbReady:
-    BehaviorSubject<boolean> = new BehaviorSubject(false);
+  listaTareas = new BehaviorSubject<Tarea[]>([]);
+  private isDbReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
  
   constructor(private sqlite: SQLite,
     private platform: Platform,
@@ -46,6 +48,7 @@ async crearTablas() {
   try {
     await this.database.executeSql(this.tblusuarios, []);
     await this.database.executeSql(this.tblusuariosActivos, []);
+    await this.database.executeSql(this.tbltareas, []);
     console.log('Tablas SQLite inicializadas');
     this.cargarUsuarios();
     this.cargarUsuariosActivos();
@@ -56,7 +59,7 @@ async crearTablas() {
   }
 }
 
-
+//metodos para gestion de usuarios mediante sqlite
   cargarUsuarios() {
     let items: Usuario[] = [];
     this.database.executeSql('SELECT * FROM usuario', [])
@@ -162,16 +165,85 @@ async crearTablas() {
 
 
   async presentToast(mensaje: string) {
-      const toast = await this.toastController.create({
+    const toast = await this.toastController.create({
       message: mensaje,
       duration: 3000
     });
     toast.present();
   }
 
+  // Métodos para gestión de tareas mediante SQLite
+  async cargarTareas(usuario_id: number) {
+    try {
+      let tareas: Tarea[] = [];
+      const res = await this.database.executeSql(
+        'SELECT * FROM tareas WHERE usuario_id = ? ORDER BY fecha DESC',
+        [usuario_id]
+      );
+      
+      if (res.rows.length > 0) {
+        for (let i = 0; i < res.rows.length; i++) {
+          tareas.push({
+            id: res.rows.item(i).id,
+            titulo: res.rows.item(i).titulo,
+            descripcion: res.rows.item(i).descripcion,
+            importancia: res.rows.item(i).importancia,
+            fecha: res.rows.item(i).fecha,
+            usuario_id: res.rows.item(i).usuario_id
+          });
+        }
+      }
+      this.listaTareas.next(tareas);
+      return tareas;
+    } catch (error) {
+      console.error('Error al cargar tareas:', error);
+      return [];
+    }
+  }
 
+  async addTarea(tarea: Tarea) {
+    try {
+      const data = [tarea.titulo, tarea.descripcion, tarea.importancia, tarea.fecha, tarea.usuario_id];
+      await this.database.executeSql(
+        'INSERT INTO tareas(titulo, descripcion, importancia, fecha, usuario_id) VALUES (?, ?, ?, ?, ?)',
+        data
+      );
+      await this.cargarTareas(tarea.usuario_id);
+      return true;
+    } catch (error) {
+      console.error('Error al agregar tarea:', error);
+      return false;
+    }
+  }
 
+  async actualizarTarea(tarea: Tarea) {
+    try {
+      const data = [tarea.titulo, tarea.descripcion, tarea.importancia, tarea.fecha, tarea.id];
+      await this.database.executeSql(
+        'UPDATE tareas SET titulo = ?, descripcion = ?, importancia = ?, fecha = ? WHERE id = ?',
+        data
+      );
+      await this.cargarTareas(tarea.usuario_id);
+      return true;
+    } catch (error) {
+      console.error('Error al actualizar tarea:', error);
+      return false;
+    }
+  }
 
+  async eliminarTarea(id: number, usuario_id: number) {
+    try {
+      await this.database.executeSql('DELETE FROM tareas WHERE id = ?', [id]);
+      await this.cargarTareas(usuario_id);
+      return true;
+    } catch (error) {
+      console.error('Error al eliminar tarea:', error);
+      return false;
+    }
+  }
 
+  fetchTareas(): Observable<Tarea[]> {
+    return this.listaTareas.asObservable();
+  }
 
 }
