@@ -3,6 +3,6 @@ export class Usuario {
   nombre: string | undefined;
   apellido: string | undefined;
   email: string | undefined;
-  contraseña : string | undefined;
+  contrasena : string | undefined;
 
 }

@@ -241,7 +241,7 @@ export class UsuarioService {
           usuarioSQLite.nombre,
           usuarioSQLite.apellido,
           usuarioSQLite.email,
-          usuarioSQLite.contraseña,
+          usuarioSQLite.contrasena,
           fotoPerfil
         );
       }
@@ -278,7 +278,7 @@ export class UsuarioService {
           usuarioSQLite.nombre,
           usuarioSQLite.apellido,
           usuarioSQLite.email,
-          usuarioSQLite.contraseña,
+          usuarioSQLite.contrasena,
           null // limpiar foto en BD
         );
       }

@@ -52,7 +52,7 @@ export class LoginPage implements OnInit {
     //}
 
 
-    //buscar si el email y contraseña coinciden
+    //buscar si el email y contrasena coinciden
     const registrado = usuarios.find(
       u => u.email === this.usuario.email && u.contrasena === this.usuario.contrasena
     );
@@ -68,7 +68,7 @@ export class LoginPage implements OnInit {
 
 
     //const registrosql = usuariosSql.find(
-    //  i => i.email === this.usuario.email && i.contraseña === this.usuario.contrasena
+    //  i => i.email === this.usuario.email && i.contrasena === this.usuario.contrasena
     //);
 
 

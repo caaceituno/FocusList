@@ -12,7 +12,7 @@ import { Tarea } from 'src/app/interfaces/tarea';
 
 export class Dbservice {
   public database!: SQLiteObject;
-  tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(50) NOT NULL, apellido VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, contraseña VARCHAR(50) NOT NULL, fotoPerfil TEXT);";
+  tblusuarios:string = "CREATE TABLE IF NOT EXISTS usuario (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(50) NOT NULL, apellido VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, contrasena VARCHAR(50) NOT NULL, fotoPerfil TEXT);";
   tblusuariosActivos:string = "CREATE TABLE IF NOT EXISTS usuariosActivos (id INTEGER,FOREIGN KEY (id) REFERENCES usuario(id));";
   tbltareas:string = "CREATE TABLE IF NOT EXISTS tareas (id INTEGER PRIMARY KEY AUTOINCREMENT, titulo VARCHAR(100) NOT NULL, descripcion TEXT, importancia VARCHAR(20), fecha DATE, usuario_id INTEGER, FOREIGN KEY (usuario_id) REFERENCES usuario(id));";
 
@@ -71,7 +71,7 @@ async crearTablas() {
           nombre: res.rows.item(i).nombre,
           apellido: res.rows.item(i).apellido,
           email: res.rows.item(i).email,
-          contraseña: res.rows.item(i).contraseña
+          contrasena: res.rows.item(i).contrasena
         });
         }
       }
@@ -94,7 +94,7 @@ async crearTablas() {
             nombre: res.rows.item(i).nombre,
             apellido: res.rows.item(i).apellido,
             email: res.row.item(i).email,
-            contraseña: res.row.item(i).contraseña
+            contrasena: res.row.item(i).contrasena
           });
       }
     })
@@ -115,10 +115,10 @@ async crearTablas() {
   }
 
 
-  async addUsuario (nombre:any,apellido:any, email:any, contraseña:any, fotoPerfil?: any) {
+  async addUsuario (nombre:any,apellido:any, email:any, contrasena:any, fotoPerfil?: any) {
     try {
-      let data = [nombre, apellido, email, contraseña, fotoPerfil || null];
-      await this.database.executeSql('INSERT INTO usuario(nombre, apellido, email, contraseña, fotoPerfil) values (?,?,?,?,?)', data);
+      let data = [nombre, apellido, email, contrasena, fotoPerfil || null];
+      await this.database.executeSql('INSERT INTO usuario(nombre, apellido, email, contrasena, fotoPerfil) values (?,?,?,?,?)', data);
       this.cargarUsuarios();
     } catch (error) {
       console.error('Error al agregar usuario en sqlite:', error);
@@ -131,9 +131,9 @@ async crearTablas() {
   }
 
 
-  async actualizarUsuario(id:any,nombre:any,apellido:any, email:any, contraseña:any, fotoPerfil?: any) {
-    let data = [nombre, apellido, email, contraseña, fotoPerfil || null, id];
-    await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contraseña=?, fotoPerfil=? WHERE id=?', data);
+  async actualizarUsuario(id:any,nombre:any,apellido:any, email:any, contrasena:any, fotoPerfil?: any) {
+    let data = [nombre, apellido, email, contrasena, fotoPerfil || null, id];
+    await this.database.executeSql('UPDATE usuario SET nombre=?, apellido=?, email=?, contrasena=?, fotoPerfil=? WHERE id=?', data);
     this.cargarUsuarios();
 
 
