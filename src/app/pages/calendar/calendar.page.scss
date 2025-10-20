@@ -1,3 +1,16 @@
+
+ion-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.calendar-title {
+  padding-left: 0;
+  margin-left: 0px;
+}
+
 ion-content {
   --background: #fffdf0;
   display: flex;
@@ -11,11 +24,26 @@ ion-content {
 
 .welcome-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
   background-color: #fbb03c;
-  width: 100vw;
-  padding: calc(env(safe-area-inset-top, 48px) + 32px) 12px 16px;
+  width: 100%;
+  padding: 25px 16px 16px 16px;
+
+  ion-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    padding-left: 0;
+  }
+
+  .calendar-title {
+    font-size: 1.1rem;
+    color: #fff;
+    margin: 0;
+    padding-left: 0;
+    font-weight: 400;
+  }
 }
 
 //contenedor superior del calendario
@@ -179,6 +207,43 @@ ion-content {
 
     h2 {
       text-align: center;
+    }
+  }
+}
+
+ion-footer {
+  background-color: #fbb03c;
+  padding: 8px 0;
+  box-shadow: 0 -4px 20px rgba(251, 176, 60, 0.4);
+  z-index: 10;
+
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #fff;
+    opacity: 0.8;
+    transition: 0.2s ease;
+
+    ion-icon {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    &:active,
+    &:hover {
+      opacity: 1;
+      transform: scale(1.05);
+      color: #ffffff;
     }
   }
 }

@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { CalendarOptions, CalendarApi } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-// 👇 Importa el componente si usas ngx-fullcalendar o similar
 import { FullCalendarComponent } from '@fullcalendar/angular';
 
 @Component({
@@ -18,6 +17,7 @@ export class CalendarPage implements OnInit {
   allFeriados: any[] = [];
   eventosMes: any[] = [];
   tituloMes = '';
+  diaActual = this.formatFecha(new Date());
 
   touchStartX = 0;
   touchEndX = 0;
@@ -54,7 +54,7 @@ export class CalendarPage implements OnInit {
   }
 
   handleDateClick(arg: any) {
-    alert(`📅 Día seleccionado: ${arg.dateStr}`);
+    alert(`Día seleccionado: ${arg.dateStr}`);
   }
 
   handleMonthChange(arg: any) {

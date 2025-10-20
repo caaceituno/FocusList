@@ -1,16 +1,17 @@
 <ion-header>
   <ion-toolbar color="warning">
     <div class="welcome-card">
-    <ion-title>{{ tituloMes }}</ion-title>
+      <ion-title>Calendario</ion-title>
+      <h2 class="calendar-title" style="font-size: 0.9rem;">Hoy, {{ diaActual }}</h2>
     </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ng-container *ngIf="!loading; else loadingTemplate">
-    <!-- 📅 Calendario superior -->
+    <!-- calendario superior -->
     <div class="calendar-header">
-      <h2>{{ tituloMes }}</h2>
+      <h2 class="ion-text-center" style="color: rgb(92, 92, 92);">{{ tituloMes }}</h2>
     </div>
 
     <div
@@ -22,14 +23,14 @@
     </div>
 
 
-    <!-- 📝 Lista de feriados -->
+    <!-- lista de feriados -->
     <div class="event-list">
-      <h2>Feriados del mes</h2>
+      <h2 style="color: rgb(78, 78, 78);">Feriados del mes</h2>
       <ion-list lines="none">
         <ion-item *ngFor="let evento of eventosMes" class="event-item">
           <ion-label>
-            <h3>{{ evento.title }}</h3>
-            <p>{{ formatFecha(evento.start) }}</p>
+            <h3 style="color: rgb(107, 107, 107); font-weight: 600;">{{ evento.title }}</h3>
+            <p style="color: rgb(119, 119, 119);">{{ formatFecha(evento.start) }}</p>
           </ion-label>
           <ion-icon name="calendar-outline" color="danger" slot="end"></ion-icon>
         </ion-item>
@@ -37,7 +38,7 @@
     </div>
   </ng-container>
 
-  <!-- ⏳ Cargando -->
+  <!-- animacion de carga -->
   <ng-template #loadingTemplate>
     <div class="loading-container">
       <ion-spinner name="crescent" color="warning"></ion-spinner>
@@ -45,3 +46,22 @@
     </div>
   </ng-template>
 </ion-content>
+
+<ion-footer>
+  <div class="bottom-nav">
+    <div class="nav-item" [routerLink]="['/home']">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>Hoy</span>
+    </div>
+
+    <div class="nav-item">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>Próximo</span>
+    </div>
+
+    <div class="nav-item">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Perfil</span>
+    </div>
+  </div>
+</ion-footer>
