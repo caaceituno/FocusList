@@ -1,0 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>test</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">test</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <div *ngIf="weatherData">
+  <h1>Clima en {{ weatherData.location.name }}</h1>
+  <p>Temperatura: {{ weatherData.current.temp_c }}°C</p>
+  <p>Condiciones: {{ weatherData.current.condition.text }}</p>
+</div>
+
+<!-- Mensaje de carga o error -->
+<div *ngIf="!weatherData">Cargando...</div>
+</ion-content>
