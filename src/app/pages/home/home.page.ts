@@ -22,6 +22,8 @@ export class HomePage implements OnInit {
   mostrarFormulario = false;
   nuevaTarea: Partial<Tarea> = { titulo: '', descripcion: '', importancia: '', fecha: '' };
 
+  private tareasSub: any;
+
   constructor(
     private usuarioService: UsuarioService,
     private router: Router,
@@ -33,6 +35,20 @@ export class HomePage implements OnInit {
   async ngOnInit() {
     await this.cargarUsuario();
     await this.cargarTareas();
+    
+    // Suscribirse a los cambios en las tareas
+    this.tareasSub = this.tareasService.getTareasObservable().subscribe(tareas => {
+      if (tareas && tareas.length > 0) {
+        this.tareas = tareas;
+        this.clasificarTareas();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.tareasSub) {
+      this.tareasSub.unsubscribe();
+    }
   }
 
   async ionViewWillEnter() {
@@ -94,11 +110,16 @@ export class HomePage implements OnInit {
 
   async guardarTarea() {
     if (this.usuario?.id && this.validarTarea()) {
+      // Asegurarse de que la fecha esté en formato ISO
+      const fechaFormateada = this.nuevaTarea.fecha ? 
+        new Date(this.nuevaTarea.fecha).toISOString() : 
+        new Date().toISOString();
+
       const tarea: Tarea = {
         titulo: this.nuevaTarea.titulo || '',
         descripcion: this.nuevaTarea.descripcion || '',
         importancia: this.nuevaTarea.importancia || '',
-        fecha: this.nuevaTarea.fecha || '',
+        fecha: fechaFormateada,
         usuario_id: this.usuario.id
       };
       

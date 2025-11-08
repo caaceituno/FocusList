@@ -35,16 +35,29 @@ export class TareasService {
     try {
       await this.ready();
       
-      // Guardar en localStorage
-      const tareas = await this.obtenerTareas(tarea.usuario_id) || [];
-      tareas.unshift(tarea);
-      await this._storage?.set(`tareas_${tarea.usuario_id}`, tareas);
-
-      // Guardar en SQLite
-      await this.dbService.addTarea(tarea);
+      // Primero guardar en SQLite para obtener el ID
+      const guardadoSQLite = await this.dbService.addTarea(tarea);
       
-      this.presentToast('Tarea guardada correctamente');
-      return true;
+      if (guardadoSQLite) {
+        // Recargar las tareas para obtener la versión con ID
+        const tareasSQLite = await this.dbService.cargarTareas(tarea.usuario_id);
+        const nuevaTareaConId = tareasSQLite[0]; // La última tarea añadida
+        
+        if (nuevaTareaConId) {
+          // Guardar en localStorage con el ID de SQLite
+          const tareas = await this.obtenerTareas(tarea.usuario_id) || [];
+          tareas.unshift(nuevaTareaConId);
+          await this._storage?.set(`tareas_${tarea.usuario_id}`, tareas);
+          
+          // Actualizar el observable
+          this.tareas.next(tareas);
+          
+          this.presentToast('Tarea guardada correctamente');
+          return true;
+        }
+      }
+      
+      throw new Error('Error al guardar en SQLite');
     } catch(error) {
       console.error('Error al guardar tarea:', error);
       this.presentToast('Error al guardar la tarea');
