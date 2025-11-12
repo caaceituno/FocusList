@@ -35,15 +35,21 @@ export class TareasService {
     try {
       await this.ready();
       
+      console.log('Guardando tarea:', tarea);
+      
       // Primero guardar en SQLite para obtener el ID
       const guardadoSQLite = await this.dbService.addTarea(tarea);
+      console.log('Guardado en SQLite:', guardadoSQLite);
       
       if (guardadoSQLite) {
         // Recargar las tareas para obtener la versión con ID
         const tareasSQLite = await this.dbService.cargarTareas(tarea.usuario_id);
-        const nuevaTareaConId = tareasSQLite[0]; // La última tarea añadida
+        console.log('Tareas cargadas de SQLite:', tareasSQLite);
         
-        if (nuevaTareaConId) {
+        if (tareasSQLite && tareasSQLite.length > 0) {
+          const nuevaTareaConId = tareasSQLite[0]; // La última tarea añadida (primero por ORDER BY DESC)
+          console.log('Nueva tarea con ID:', nuevaTareaConId);
+          
           // Guardar en localStorage con el ID de SQLite
           const tareas = await this.obtenerTareas(tarea.usuario_id) || [];
           tareas.unshift(nuevaTareaConId);
@@ -53,7 +59,11 @@ export class TareasService {
           this.tareas.next(tareas);
           
           this.presentToast('Tarea guardada correctamente');
+          console.log('Tarea guardada exitosamente');
           return true;
+        } else {
+          console.warn('No se encontraron tareas después de guardar');
+          throw new Error('No se pudo recuperar la tarea guardada');
         }
       }
       
