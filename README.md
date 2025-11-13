@@ -7,6 +7,7 @@ ejecutar en consola:
 - npm install @awesome-cordova-plugins/calendar
 - npm install cordova-sqlite-storage
 - npm install @awesome-cordova-plugins/sqlite 
+- npm install nodemailer
 Avance 1:
 
 - Creación de Proyecto con mas de una page ✅

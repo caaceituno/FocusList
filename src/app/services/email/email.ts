@@ -14,11 +14,11 @@ export class EmailService {
     try {
       const res = await emailjs.send('service_id', 'template_id', datos);
       //ELIMINAR TODOS LOS CONSOLE.LOG EN PRODUCCION NO DEJAR NADAAAAA
-      console.log('Email enviado', res);
+      console.log('Email enviado xd', res);
       // mostrar toast / feedback al usuario
       return true;
     } catch (error) {
-      console.error('Error enviando email', error);
+      console.error('Error enviando email tonto weon', error);
       // mostrar error al usuario
       return false;
     }
