@@ -7,8 +7,11 @@ emailjs.init('uALMtOh_mwmZDQgwm');
   providedIn: 'root'
 })
 export class EmailService {
-  
-  async enviarYNotificar(datos: any) {
+
+  email: string = 'focustlist@gmail.com'
+  contraseña: String = 'camiladark1234'
+
+  async enviarYNotificar(datos : any) {
     //ejemplooooo datos = { to_email: 'destinatario@ejemplo.com', from_name: 'Benja', message: 'Hola' }
     //siganme en instagram @oke.dux
     try {
