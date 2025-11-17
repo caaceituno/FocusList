@@ -1,4 +1,3 @@
-
 ion-title {
   font-size: 1.3rem;
   font-weight: 600;
@@ -9,6 +8,10 @@ ion-title {
 .calendar-title {
   padding-left: 0;
   margin-left: 0px;
+}
+
+ion-toolbar {
+  --background: #fbb03c;
 }
 
 ion-content {
@@ -28,7 +31,9 @@ ion-content {
   align-items: flex-start;
   gap: 4px;
   background-color: #fbb03c;
-  width: 100%;
+  /* allow space for the right-side weather block */
+  flex: 1 1 auto;
+  width: auto;
   padding: 25px 16px 16px 16px;
 
   ion-title {
@@ -44,6 +49,38 @@ ion-content {
     padding-left: 0;
     font-weight: 400;
   }
+}
+
+/* New/updated styles for weather block */
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  color: #fff;
+  padding: 8px 12px;
+  max-width: 220px;
+  font-size: 0.95rem;
+  line-height: 1.1;
+  background: #fbb03c;
+}
+
+.weather-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.weather-line {
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+/* ensure ion-buttons doesn't collapse the content */
+ion-buttons[slot="end"] {
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
 }
 
 //contenedor superior del calendario
@@ -210,6 +247,8 @@ ion-content {
     }
   }
 }
+
+
 
 ion-footer {
   background-color: #fbb03c;

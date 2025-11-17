@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CalendarOptions, CalendarApi } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FullCalendarComponent } from '@fullcalendar/angular';
 import { FeriadosService } from '../../services/feriado/feriado.service';
+import { ClimaService } from '../../services/clima/clima.service';
+import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
   selector: 'app-calendar',
@@ -11,7 +13,7 @@ import { FeriadosService } from '../../services/feriado/feriado.service';
   styleUrls: ['./calendar.page.scss'],
   standalone: false,
 })
-export class CalendarPage implements OnInit {
+export class CalendarPage implements OnInit, OnDestroy {
   @ViewChild('fullCalendar') fullCalendar!: FullCalendarComponent;
   calendarOptions!: CalendarOptions;
   loading = true;
@@ -21,15 +23,25 @@ export class CalendarPage implements OnInit {
   diaActual = this.formatFecha(new Date());
   annio: number = new Date().getFullYear();
 
-  constructor(private feriadosService: FeriadosService) {}
+  // ADDED: clima state
+  weatherData: any = null;
+  private watchId: any = null;
+
+  // MODIFY constructor: inyectar ClimaService además de FeriadosService
+  constructor(
+    private feriadosService: FeriadosService,
+    private climaService: ClimaService // <-- agregado
+  ) {}
 
   touchStartX = 0;
   touchEndX = 0;
 
-  ngOnInit() {
+  async ngOnInit() {
+    // INICIALIZA clima (no bloqueante)
+    this.initClima().catch(err => console.warn('initClima error', err));
+
     this.feriadosService.obtenerFeriados(this.annio).subscribe({
       next: (data) => {
-
         console.log('🔍 RAW DATA FERIADOS:', data);
         const rawData = Array.isArray(data)
           ? data
@@ -62,6 +74,64 @@ export class CalendarPage implements OnInit {
       },
       complete: () => {
         this.loading = false;
+      }
+    });
+  }
+
+  // NEW: inicializar geolocalización y watch
+  private async initClima() {
+    console.log('[CalendarPage] initClima');
+    try {
+      const perm: any = await Geolocation.requestPermissions();
+      const granted = perm?.location === 'granted' || perm === 'granted';
+      console.log('[CalendarPage] permiso ubicación:', perm);
+      if (!granted) {
+        console.warn('Permiso de ubicación denegado', perm);
+        return;
+      }
+    } catch (e) {
+      console.warn('requestPermissions error', e);
+    }
+
+    try {
+      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true }).catch(() => null);
+      if (pos?.coords) {
+        this.fetchWeather(pos.coords.latitude, pos.coords.longitude);
+      } else {
+        console.log('[CalendarPage] getCurrentPosition no disponible (web/emulador)');
+      }
+    } catch (e) {
+      console.error('Error al obtener posición inicial', e);
+    }
+
+    // iniciar watch (safe)
+    try {
+      this.watchId = await Geolocation.watchPosition(
+        { enableHighAccuracy: true, maximumAge: 1000 },
+        (position, err) => {
+          if (err) {
+            console.error('Geolocation watch error', err);
+            return;
+          }
+          if (!position) return;
+          this.fetchWeather(position.coords.latitude, position.coords.longitude);
+        }
+      );
+    } catch (e) {
+      console.warn('watchPosition failed', e);
+    }
+  }
+
+  // NEW: obtener clima usando el servicio existente
+  private fetchWeather(lat: number, lon: number) {
+    console.log('[CalendarPage] fetchWeather', lat, lon);
+    this.climaService.getWeatherByCoords(lat, lon).subscribe({
+      next: (data: any) => {
+        console.log('[CalendarPage] weather data', data);
+        this.weatherData = data;
+      },
+      error: (error: any) => {
+        console.error('Error al obtener clima', error);
       }
     });
   }
@@ -157,5 +227,15 @@ export class CalendarPage implements OnInit {
       .join(' ');
 
     return texto;
+  }
+
+  ngOnDestroy(): void {
+    // limpiar watch de geolocalización si existe
+    if (this.watchId != null) {
+      try {
+        Geolocation.clearWatch({ id: this.watchId });
+      } catch {}
+      this.watchId = null;
+    }
   }
 }

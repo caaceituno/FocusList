@@ -1,23 +1,22 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ClimaService } from '../../services/clima/clima.service';
+import { ClimaService } from '../../services/clima/clima.service'; // <-- ruta corregida
 import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
-  selector: 'app-test',
-  templateUrl: './test.page.html',
-  styleUrls: ['./test.page.scss'],
+  selector: 'app-clima',
+  templateUrl: './clima.component.html',
+  styleUrls: ['./clima.component.scss'],
   standalone: false
 })
-export class TestPage implements OnInit, OnDestroy {
+export class ClimaComponent implements OnInit, OnDestroy {
 
   weatherData: any;
-  private watchId: string | null = null;
+  private watchId: any = null;
   
-  constructor(private ClimaService: ClimaService) { }
+  constructor(private climaService: ClimaService) { } // nombre en camelCase
 
   async ngOnInit(): Promise<void> {
     const perm: any = await Geolocation.requestPermissions();
-    // en algunas versiones perm puede venir como { location: 'granted' } o similar
     const granted = perm?.location === 'granted' || perm === 'granted';
     if (!granted) {
       console.error('Permiso de ubicación denegado', perm);
@@ -25,14 +24,12 @@ export class TestPage implements OnInit, OnDestroy {
     }
 
     try {
-      // obtener posición inicial (para evitar pantalla de carga indefinida)
       const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
       this.fetchWeather(pos.coords.latitude, pos.coords.longitude);
     } catch (e) {
       console.error('Error al obtener posición inicial', e);
     }
 
-    // luego iniciar watch para actualizaciones
     this.watchId = await Geolocation.watchPosition(
       { enableHighAccuracy: true, maximumAge: 1000 },
       (position, err) => {
@@ -47,13 +44,13 @@ export class TestPage implements OnInit, OnDestroy {
   }
 
   private fetchWeather(lat: number, lon: number) {
-    this.ClimaService.getWeatherByCoords(lat, lon)
+    this.climaService.getWeatherByCoords(lat, lon)
       .subscribe({
         next: (data: any) => {
           this.weatherData = data;
           console.log('weather', this.weatherData);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error al obtener clima', error);
         }
       });
