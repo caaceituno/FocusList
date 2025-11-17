@@ -1,9 +1,15 @@
 <ion-header>
-  <ion-toolbar color="warning">
+  <ion-toolbar>
     <div class="welcome-card">
       <ion-title>Calendario</ion-title>
       <h2 class="calendar-title" style="font-size: 0.9rem;">Hoy, {{ diaActual }}</h2>
     </div>
+
+      <div class="weather-info" *ngIf="weatherData" slot="end">
+        <div class="weather-title">Clima en {{ weatherData.location?.name ?? '...' }}</div>
+        <div class="weather-line">Temperatura: {{ weatherData.current?.temp_c ?? '—' }}°C</div>
+        <div class="weather-line">Condiciones: {{ weatherData.current?.condition?.text ?? '—' }}</div>
+      </div>
   </ion-toolbar>
 </ion-header>
 

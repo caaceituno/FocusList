@@ -48,6 +48,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/calendar/calendar.module').then( m => m.CalendarPageModule)
   },
   {
+    path: 'test',
+    loadChildren: () => import('./pages/test/test.module').then( m => m.TestPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'not-found'
   },

@@ -1,0 +1,12 @@
+<ion-content class="clima-container">
+  <div class="clima-container">
+    <ng-container *ngIf="weatherData?.current; else loading">
+      <div class="temp">{{ weatherData.current.temp_c ?? '—' }}°C</div>
+      <div class="cond">{{ weatherData.current.condition?.text ?? '' }}</div>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="loading">Cargando...</div>
+    </ng-template>
+  </div>
+</ion-content>
