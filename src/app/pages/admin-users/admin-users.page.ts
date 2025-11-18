@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../../services/registro/usuario.service';
-import { Users } from '../../interfaces/users';
+import { User } from '../../interfaces/users';
 
 @Component({
   selector: 'app-admin-users',
@@ -9,11 +9,11 @@ import { Users } from '../../interfaces/users';
   standalone: false,
 })
 export class AdminUsersPage implements OnInit {
-  usuarios: Users[] = [];
+  usuarios: User[] = [];
 
   // PROPIEDADES PARA EL FORMULARIO DE EDICIÓN
   showEditModal = false;
-  usuarioEdit: Users = { nombre: '', apellido: '', email: '', contrasena: '' };
+  usuarioEdit: User = { id: 0, nombre: '', apellido: '', email: '', contrasena: '' };
 
   constructor(private usuarioService: UsuarioService) {}
 
@@ -25,7 +25,7 @@ export class AdminUsersPage implements OnInit {
     this.usuarios = await this.usuarioService.mostrarUsuarios();
   }
 
-  editarUsuario(usuario: Users) {
+  editarUsuario(usuario: User) {
     this.usuarioEdit = { ...usuario }; // Copia los datos
     this.showEditModal = true;
   }

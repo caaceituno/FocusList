@@ -1,8 +1,7 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
-import { Users } from '../../interfaces/users';
-import { Usuario } from 'src/app/clases/usuario';
+import { User } from '../../interfaces/users';
 import { UsuarioService } from '../../services/registro/usuario.service';
 import { Dbservice } from 'src/app/services/SQLite/dbservice';
 
@@ -18,21 +17,17 @@ import { Dbservice } from 'src/app/services/SQLite/dbservice';
 export class RegisterPage implements OnInit {
 
 
-  usuario: Users = {
+  usuario: User = {
+  id: 0,
   nombre: '',
   apellido: '',
   email: '',
   contrasena: '',
   };
 
-
-
-
   field: string="";
 
-
   errorMessage: String = ''
-
 
   constructor(
     public toastController: ToastController,
@@ -47,40 +42,42 @@ export class RegisterPage implements OnInit {
 
 
   //Método registrar
-    async registro() {
+  async registro() {
     if (this.validacionModelo(this.usuario)) {
 
+      // Guardado en SQLite a través del servicio 
+      const ok = await this.usuarioService.guardarUsuario(this.usuario);
 
-      //para guardar en local
-      await this.usuarioService.guardarUsuario(this.usuario);
-      //guardado en sqlite
-      await this.dbService.addUsuario(this.usuario.nombre,this.usuario.apellido,this.usuario.email,this.usuario.contrasena)
+      if (!ok) {
+        this.presentToast('top', 'Error al registrar el usuario', 5000);
+        return;
+      }
 
-
-      //verificacion en consola
       console.log('Usuarios guardados:', await this.usuarioService.mostrarUsuarios());
-
-
-      console.log('usuarios guardado en sqlite', await this.dbService.cargarUsuarios());
-
+      console.log('Usuarios en SQLite:', await this.dbService.cargarUsuarios());
 
       let navigationExtras: NavigationExtras = {
         state: { usuario: this.usuario }
       };
+
       this.router.navigate(['/login'], navigationExtras);
-
-
-
 
     } else {
       this.presentToast('top', 'Error: Falta ' + this.field, 5000);
     }
   }
 
-
   validacionModelo(model: any) {
-    for (var [key, value] of Object.entries(model)) {
-      if (value == '') {
+    for (const [key, value] of Object.entries(model)) {
+      // Omitir validación del id (se asigna en la BD)
+      if (key === 'id') continue;
+
+      if (value === null || value === undefined) {
+        this.field = key;
+        return false;
+      }
+
+      if (typeof value === 'string' && value.trim() === '') {
         this.field = key;
         return false;
       }

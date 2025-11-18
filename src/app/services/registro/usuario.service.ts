@@ -1,27 +1,25 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
-import { Users } from 'src/app/interfaces/users';
-import { ToastController } from '@ionic/angular';
 import { Dbservice } from '../SQLite/dbservice';
+import { User } from 'src/app/interfaces/users';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuarioService {
+
   private _storage: Storage | null = null;
-  usuarios: Users[] = [];
 
   constructor(
-    private storage: Storage, 
-    private toastController: ToastController,
-    private dbService: Dbservice
+    private storage: Storage,
+    private db: Dbservice
   ) {
     this.init();
   }
 
   async init() {
-    const storage = await this.storage.create();
-    this._storage = storage;
+    const store = await this.storage.create();
+    this._storage = store;
   }
 
   private async ready() {
@@ -30,72 +28,91 @@ export class UsuarioService {
     }
   }
 
-  async guardarUsuario(user: Users) {
+  // ===========================================================
+  // REGISTRO
+  // ===========================================================
+  async registrarUsuario(user: User): Promise<boolean> {
     try {
-      await this.ready();
-      const usuarios = (await this._storage?.get('usuarios')) || [];
-      const existe = usuarios.find((u: Users) => u.email === user.email);
+      const id = await this.db.addUsuario(
+        user.nombre,
+        user.apellido,
+        user.email,
+        user.contrasena,
+        user.fotoPerfil ?? null
+      );
 
-      if (!existe) {
-        // Guardar en localStorage (solo en la lista de usuarios)
-        usuarios.unshift(user);
-        await this._storage?.set('usuarios', usuarios);
-
-        // Guardar en SQLite (solo en la tabla usuario)
-        await this.dbService.addUsuario(user.nombre, user.apellido, user.email, user.contrasena);
-        
-        this.presentToast('Usuario registrado correctamente');
-      } else {
-        this.presentToast('El usuario ya existe');
+      if (!id) {
+        console.error("Error: El usuario no obtuvo un ID válido.");
+        return false;
       }
-    } catch(error) {
-      console.error('Error al guardar usuario: ', error);
+
+      return true;
+
+    } catch (e) {
+      console.error("Error registrando usuario:", e);
+      return false;
     }
   }
 
-  async mostrarUsuarios(): Promise<Users[]> {
+  // ===========================================================
+  // LOGIN
+  // ===========================================================
+  async login(email: string, contrasena: string): Promise<boolean> {
+    const usuarios = await this.db.cargarUsuarios();
+    const existe = usuarios.find(u => u.email === email && u.contrasena === contrasena);
+
+    if (!existe) return false;
+
     await this.ready();
-    return (await this._storage?.get('usuarios')) || [];
+    await this._storage?.set('usuarioActivoEmail', email);
+    return true;
   }
 
-  async setUsuarioActivo(user: Users) {
-    try {
-      await this.ready();
-      // Guardar en localStorage como usuario activo
-      await this._storage?.set('usuarioActivo', user);
-      
-      // Buscar el usuario en SQLite por email para obtener su ID
-      const usuariosSQLite = await this.dbService.cargarUsuarios();
-      const usuarioSQLite = usuariosSQLite.find(u => u.email === user.email);
-      
-      if (usuarioSQLite?.id) {
-        // Primero eliminar cualquier usuario activo existente
-        const usuariosActivos = await this.dbService.cargarUsuariosActivos();
-        for (const activo of usuariosActivos) {
-          if (activo.id) {
-            await this.dbService.eliminarUsuarioActivo(activo.id);
-          }
-        }
-        
-        // Agregar el nuevo usuario activo
-        await this.dbService.addUsuarioActivo(usuarioSQLite.id);
-      }
-    } catch(error) {
-      console.error('Error al establecer usuario activo: ', error);
-    }
-  }
-
-  async getUsuarioActivo(): Promise<Users | null> {
+  // Indicar usuario activo explícitamente
+  async setUsuarioActivo(user: User) {
     await this.ready();
-    return await this._storage?.get('usuarioActivo');
+    await this._storage?.set('usuarioActivoEmail', user.email);
   }
 
+  // ===========================================================
+  // USUARIO ACTIVO
+  // ===========================================================
+  async getUsuarioActivo(): Promise<User | null> {
+    await this.ready();
+    const email = await this._storage?.get('usuarioActivoEmail');
+    if (!email) return null;
+
+    const usuariosSQLite = await this.db.cargarUsuarios();
+    const usuario = usuariosSQLite.find(u => u.email === email);
+    if (!usuario) return null;
+
+    return {
+      id: usuario.id ?? 0,
+      nombre: usuario.nombre ?? '',
+      apellido: usuario.apellido ?? '',
+      email: usuario.email ?? '',
+      contrasena: usuario.contrasena ?? '',
+      fotoPerfil: usuario.fotoPerfil ?? undefined
+    };
+  }
+
+  // ===========================================================
+  // AUTENTICACIÓN
+  // ===========================================================
   async isAuthenticated(): Promise<boolean> {
     await this.ready();
-    const user = await this.getUsuarioActivo();
-    return !!user;
+    const email = await this._storage?.get('usuarioActivoEmail');
+    return !!email;
   }
 
+  async logout() {
+    await this.ready();
+    await this._storage?.remove('usuarioActivoEmail');
+  }
+
+  // ===========================================================
+  // WELCOME
+  // ===========================================================
   async setWelcomeShown() {
     await this.ready();
     await this._storage?.set('welcomeShown', true);
@@ -103,189 +120,86 @@ export class UsuarioService {
 
   async hasWelcomeShown(): Promise<boolean> {
     await this.ready();
-    return (await this._storage?.get('welcomeShown')) === true;
+    const val = await this._storage?.get('welcomeShown');
+    return val === true;
   }
 
-  async presentToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000,
-      position: 'bottom'
-    });
-    toast.present();
+  // ===========================================================
+  // ADMIN DE USUARIOS
+  // ===========================================================
+  async mostrarUsuarios(): Promise<User[]> {
+    const usuariosSQLite = await this.db.cargarUsuarios();
+
+    return usuariosSQLite.map(u => ({
+      id: u.id ?? 0,
+      nombre: u.nombre ?? '',
+      apellido: u.apellido ?? '',
+      email: u.email ?? '',
+      contrasena: u.contrasena ?? '',
+      fotoPerfil: u.fotoPerfil ?? undefined
+    }));
   }
 
-  async borrarUsuario(email: string): Promise<void> {
-    try {
-      await this.ready();
-      // Borrar de localStorage
-      const usuarios = (await this._storage?.get('usuarios')) || [];
-      const nuevosUsuarios = usuarios.filter((u: Users) => u.email !== email);
-      await this._storage?.set('usuarios', nuevosUsuarios);
+  async guardarUsuario(user: User) {
+    return await this.registrarUsuario(user);
+  }
 
-      // Si el usuario borrado era el activo se elimina
-      const usuarioActivo = await this._storage?.get('usuarioActivo');
-      if (usuarioActivo && usuarioActivo.email === email) {
-        await this._storage?.remove('usuarioActivo');
-      }
+  async editarUsuario(usuarioEdit: User) {
+    await this.db.actualizarUsuario(
+      usuarioEdit.id,
+      usuarioEdit.nombre,
+      usuarioEdit.apellido,
+      usuarioEdit.email,
+      usuarioEdit.contrasena,
+      usuarioEdit.fotoPerfil ?? null
+    );
+  }
 
-      // Borrar de SQLite
-      const usuariosSQLite = await this.dbService.cargarUsuarios();
-      const usuarioSQLite = usuariosSQLite.find(u => u.email === email);
-      if (usuarioSQLite?.id) {
-        await this.dbService.eliminarUsuarioActivo(usuarioSQLite.id);
-        await this.dbService.eliminarUsuario(usuarioSQLite.id);
-      }
-    } catch(error) {
-      console.error('Error al borrar usuario: ', error);
+  async borrarUsuario(email: string) {
+    const usuarios = await this.db.cargarUsuarios();
+    const usuario = usuarios.find(u => u.email === email);
+    if (usuario?.id) {
+      await this.db.eliminarUsuario(usuario.id);
     }
   }
 
-  async borrarTodosUsuarios(): Promise<void> {
-    try {
-      await this.ready();
-      // Borrar de localStorage
-      await this._storage?.set('usuarios', []);
-      await this._storage?.remove('usuarioActivo');
-
-      // Borrar de SQLite
-      const usuarios = await this.dbService.cargarUsuarios();
-      for (const usuario of usuarios) {
-        if (usuario.id) {
-          await this.dbService.eliminarUsuarioActivo(usuario.id);
-          await this.dbService.eliminarUsuario(usuario.id);
-        }
-      }
-    } catch(error) {
-      console.error('Error al borrar todos los usuarios: ', error);
+  async borrarTodosUsuarios() {
+    const usuarios = await this.db.cargarUsuarios();
+    for (const u of usuarios) {
+      if (u.id) await this.db.eliminarUsuario(u.id);
     }
   }
 
-  async editarUsuario(usuarioEditado: Users): Promise<void> {
-    try {
-      await this.ready();
-      // Actualizar en localStorage
-      const usuarios = (await this._storage?.get('usuarios')) || [];
-      const nuevosUsuarios = usuarios.map((u: Users) =>
-        u.email === usuarioEditado.email ? usuarioEditado : u
-      );
-      await this._storage?.set('usuarios', nuevosUsuarios);
+  // ===========================================================
+  // FOTO DE PERFIL
+  // ===========================================================
+  async actualizarFotoPerfil(email: string, foto: string) {
+    const usuarios = await this.db.cargarUsuarios();
+    const usuario = usuarios.find(u => u.email === email);
+    if (!usuario) return;
 
-      // Actualizar el usuario activo si es el que se está editando
-      const usuarioActivo = await this._storage?.get('usuarioActivo');
-      if (usuarioActivo && usuarioActivo.email === usuarioEditado.email) {
-        await this._storage?.set('usuarioActivo', usuarioEditado);
-      }
-
-      // Actualizar en SQLite
-      const usuariosSQLite = await this.dbService.cargarUsuarios();
-      const usuarioSQLite = usuariosSQLite.find(u => u.email === usuarioEditado.email);
-      if (usuarioSQLite?.id) {
-        await this.dbService.actualizarUsuario(
-          usuarioSQLite.id,
-          usuarioEditado.nombre,
-          usuarioEditado.apellido,
-          usuarioEditado.email,
-          usuarioEditado.contrasena
-        );
-      }
-    } catch(error) {
-      console.error('Error al editar usuario: ', error);
-    }
+    await this.db.actualizarUsuario(
+      usuario.id!,
+      usuario.nombre!,
+      usuario.apellido!,
+      usuario.email!,
+      usuario.contrasena!,
+      foto
+    );
   }
 
-  async logout(): Promise<void> {
-    try {
-      // Eliminar usuario activo de localStorage
-      await this._storage?.remove('usuarioActivo');
+  async eliminarFotoPerfil(email: string) {
+    const usuarios = await this.db.cargarUsuarios();
+    const usuario = usuarios.find(u => u.email === email);
+    if (!usuario) return;
 
-      // Eliminar de la tabla usuariosActivos en SQLite
-      const usuarioActivo = await this._storage?.get('usuarioActivo');
-      if (usuarioActivo) {
-        // Buscar el ID del usuario en SQLite
-        const usuariosSQLite = await this.dbService.cargarUsuarios();
-        const usuarioSQLite = usuariosSQLite.find(u => u.email === usuarioActivo.email);
-        if (usuarioSQLite?.id) {
-          // Solo eliminar de la tabla usuariosActivos
-          await this.dbService.eliminarUsuarioActivo(usuarioSQLite.id);
-        }
-      }
-    } catch(error) {
-      console.error('Error al cerrar sesión: ', error);
-    }
-  }
-
-  async actualizarFotoPerfil(email: string, fotoPerfil: string): Promise<void> {
-    try {
-      await this.ready();
-      
-      // Actualizar en localStorage
-      const usuarios = (await this._storage?.get('usuarios')) || [];
-      const nuevosUsuarios = usuarios.map((u: Users) =>
-        u.email === email ? { ...u, fotoPerfil } : u
-      );
-      await this._storage?.set('usuarios', nuevosUsuarios);
-
-      // Actualizar usuario activo si es el mismo
-      const usuarioActivo = await this._storage?.get('usuarioActivo');
-      if (usuarioActivo && usuarioActivo.email === email) {
-        await this._storage?.set('usuarioActivo', { ...usuarioActivo, fotoPerfil });
-      }
-
-      // Actualizar en SQLite
-      const usuariosSQLite = await this.dbService.cargarUsuarios();
-      const usuarioSQLite = usuariosSQLite.find(u => u.email === email);
-      if (usuarioSQLite?.id) {
-        await this.dbService.actualizarUsuario(
-          usuarioSQLite.id,
-          usuarioSQLite.nombre,
-          usuarioSQLite.apellido,
-          usuarioSQLite.email,
-          usuarioSQLite.contrasena,
-          fotoPerfil
-        );
-      }
-      
-      this.presentToast('Foto de perfil actualizada');
-    } catch(error) {
-      console.error('Error al actualizar foto de perfil: ', error);
-    }
-  }
-
-  async eliminarFotoPerfil(email: string): Promise<void> {
-    try {
-      await this.ready();
-
-      // Actualizar en Storage
-      const usuarios = (await this._storage?.get('usuarios')) || [];
-      const nuevosUsuarios = usuarios.map((u: Users) =>
-        u.email === email ? { ...u, fotoPerfil: undefined } : u
-      );
-      await this._storage?.set('usuarios', nuevosUsuarios);
-
-      // Actualizar usuario activo
-      const usuarioActivo = await this._storage?.get('usuarioActivo');
-      if (usuarioActivo && usuarioActivo.email === email) {
-        await this._storage?.set('usuarioActivo', { ...usuarioActivo, fotoPerfil: undefined });
-      }
-
-      // Actualizar en SQLite (poner null)
-      const usuariosSQLite = await this.dbService.cargarUsuarios();
-      const usuarioSQLite = usuariosSQLite.find((u: any) => u.email === email);
-      if (usuarioSQLite?.id) {
-        await this.dbService.actualizarUsuario(
-          usuarioSQLite.id,
-          usuarioSQLite.nombre,
-          usuarioSQLite.apellido,
-          usuarioSQLite.email,
-          usuarioSQLite.contrasena,
-          null // limpiar foto en BD
-        );
-      }
-
-      await this.presentToast('Foto de perfil eliminada');
-    } catch (e) {
-      console.error('Error al eliminar foto de perfil:', e);
-    }
+    await this.db.actualizarUsuario(
+      usuario.id!,
+      usuario.nombre!,
+      usuario.apellido!,
+      usuario.email!,
+      usuario.contrasena!,
+      null
+    );
   }
 }

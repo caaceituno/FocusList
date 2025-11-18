@@ -1,8 +1,8 @@
 export class Usuario {
-  id?: number; 
-  nombre: string | undefined;
-  apellido: string | undefined;
-  email: string | undefined;
-  contrasena : string | undefined;
-
+  id?: number;
+  nombre?: string;
+  apellido?: string;
+  email?: string;
+  contrasena?: string;
+  fotoPerfil?: string | null;
 }
