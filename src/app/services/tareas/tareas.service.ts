@@ -49,4 +49,17 @@ export class TareasService {
 
     return false;
   }
+
+  // Actualizar tarea
+  async actualizarTarea(tarea: Tarea, usuario_id: number): Promise<boolean> {
+    const ok = await this.db.actualizarTarea(tarea, usuario_id);
+
+    if (ok === true) {
+      const tareasActualizadas = await this.db.cargarTareas(usuario_id);
+      this.tareas$.next(tareasActualizadas);
+      return true;
+    }
+
+    return false;
+  }
 }

@@ -218,6 +218,36 @@ export class Dbservice {
       return false;
     }
   }
+  
+  async actualizarTarea(tarea: Tarea, usuario_id: number): Promise<boolean> {
+    try {
+      const query = `
+        UPDATE tareas
+        SET titulo = ?, descripcion = ?, importancia = ?, fecha = ?
+        WHERE id = ? AND usuario_id = ?
+      `;
+      const result = await this.database.executeSql(query, [
+        tarea.titulo,
+        tarea.descripcion,
+        tarea.importancia,
+        tarea.fecha,
+        tarea.id,
+        usuario_id
+      ]);
+      
+      // Si se actualizó alguna fila, recargar las tareas
+      if (result.rowsAffected > 0) {
+        await this.cargarTareas(usuario_id);
+        return true;
+      } else {
+        console.log('No se actualizó la tarea');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error al actualizar la tarea:', error);
+      return false;
+    }
+  }
 
   fetchTareas(): Observable<Tarea[]> {
     return this.listaTareas.asObservable();

@@ -7,6 +7,8 @@
         <h2>{{ tarea.titulo }}</h2>
         <p>{{ tarea.descripcion }}</p>
         <small *ngIf="tarea.fecha">{{ tarea.fecha | date: 'dd-MM-yyyy' }}</small>
+        <ion-button color="primary">Editar</ion-button>
+        <ion-button (click)="borrarTarea(tarea)" color="danger">Borrar</ion-button>
       </div>
     </ng-container>
 
