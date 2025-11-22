@@ -182,3 +182,9 @@ ion-button {
   }
 }
 
+ion-toolbar {
+  --background: #fbb03c;
+  display: flex;
+  align-items: center;
+  padding-top: 20px !important;
+}

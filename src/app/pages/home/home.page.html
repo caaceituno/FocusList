@@ -72,13 +72,14 @@
   </div>
 </ion-footer>
 
-<ion-modal [isOpen]="mostrarFormulario" (didDismiss)="cerrarFormulario()" class="modal-tarea">
+<ion-modal [isOpen]="mostrarFormulario" (didDismiss)="cerrarFormulario()">
   <ng-template>
+    
     <ion-header class="modal-header">
-      <ion-toolbar color="warning">
+        <ion-toolbar>
         <ion-title>Nueva Tarea</ion-title>
         <ion-buttons slot="end">
-          <ion-button fill="clear" color="light" (click)="cerrarFormulario()">
+          <ion-button fill="clear" style="margin-top: 0px;" color="light" (click)="cerrarFormulario()">
             Cerrar
           </ion-button>
         </ion-buttons>
@@ -86,59 +87,12 @@
     </ion-header>
 
     <ion-content class="modal-content">
-
-      <form (ngSubmit)="guardarTarea()" class="form-tarea">
-
-        <ion-item class="input-box">
-          <ion-label position="stacked">Título</ion-label>
-          <ion-input [(ngModel)]="nuevaTarea.titulo" name="titulo" required></ion-input>
-        </ion-item>
-
-        <ion-item class="input-box">
-          <ion-label position="stacked">Descripción</ion-label>
-          <ion-textarea rows="3" auto-grow [(ngModel)]="nuevaTarea.descripcion" name="descripcion"></ion-textarea>
-        </ion-item>
-
-        <div class="importancia-box">
-          <label class="importancia-title">Importancia</label>
-
-          <ion-radio-group [(ngModel)]="nuevaTarea.importancia" name="importancia">
-            <ion-item lines="none" class="radio-item">
-              <ion-label>Baja</ion-label>
-              <ion-radio slot="end" value="baja"></ion-radio>
-            </ion-item>
-
-            <ion-item lines="none" class="radio-item">
-              <ion-label>Media</ion-label>
-              <ion-radio slot="end" value="media"></ion-radio>
-            </ion-item>
-
-            <ion-item lines="none" class="radio-item">
-              <ion-label>Alta</ion-label>
-              <ion-radio slot="end" value="alta"></ion-radio>
-            </ion-item>
-          </ion-radio-group>
-        </div>
-
-        <ion-item class="input-box">
-          <ion-label position="stacked">Fecha</ion-label>
-          <ion-datetime
-            presentation="date"
-            [(ngModel)]="nuevaTarea.fecha"
-            name="fecha"
-            min="2023-01-01"
-            max="2025-12-31"
-            required>
-          </ion-datetime>
-        </ion-item>
-
-        <ion-button expand="block" type="submit" color="warning" class="btn-guardar">
-          Guardar Tarea
-        </ion-button>
-
-      </form>
-
+      <app-formulario 
+        (onSubmit)="guardarTareaDesdeComponente($event)">
+      </app-formulario>
     </ion-content>
+
   </ng-template>
 </ion-modal>
+
 

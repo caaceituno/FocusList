@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { TestPageRoutingModule } from './test-routing.module';
 
 import { TestPage } from './test.page';
+import { Formulario2Component } from '../../components/formulario2/formulario2.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { TestPage } from './test.page';
     IonicModule,
     TestPageRoutingModule
   ],
-  declarations: [TestPage]
+  declarations: [TestPage, Formulario2Component]
 })
 export class TestPageModule {}

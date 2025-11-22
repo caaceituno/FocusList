@@ -1,0 +1,125 @@
+ion-toolbar {
+  --background: #ffce67;
+  display: flex;
+  align-items: center;
+}
+
+ion-buttons[slot="end"] {
+  display: flex;
+  align-items: center;
+}
+
+ion-title {
+  color: #ffffff;
+}
+
+form {
+  padding: 16px;
+  background-color: #fffdf0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+ion-item {
+  margin-bottom: 16px;
+}
+
+.box-label {
+  font-size: 23px !important;
+  font-weight: bold;
+  color: #333;
+}
+
+.importancia-title {
+  display: block;
+  font-size: 1.3rem !important;
+  font-weight: bold;
+  color: #333 !important;
+  padding-left: 15px;
+  padding-bottom: 10px !important;
+}
+
+ion-datetime {
+  --background: #fff;
+  --border-radius: 8px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+ion-button {
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+/* BAJA – verde */
+ion-radio[value="baja"]::part(container) {
+  border-color: #31c454 !important;
+}
+ion-radio[value="baja"]::part(mark) {
+  background: #31c454 !important;
+}
+
+/* MEDIA – amarillo */
+ion-radio[value="media"]::part(container) {
+  border-color: #ffcc00 !important;
+}
+ion-radio[value="media"]::part(mark) {
+  background: #ffcc00 !important;
+}
+
+/* ALTA – rojo */
+ion-radio[value="alta"]::part(container) {
+  border-color: #ff3b30 !important;
+}
+ion-radio[value="alta"]::part(mark) {
+  background: #ff3b30 !important;
+}
+
+ion-item .fecha-label {
+  padding-bottom: 40px !important;
+  font-weight: bold;
+  font-size: 1.3rem !important;
+}
+
+.btn-guardar {
+  --background: #fbb03c;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* BAJA – verde */
+ion-item.selected-baja {
+  background-color: #d4f1c5; /* Color de fondo */
+  border-radius: 8px; /* Ajusta el radio del borde */
+  transition: background-color 0.3s ease; /* Animación suave */
+}
+
+ion-item.selected-baja ion-label {
+  color: #5b8147; /* Color del texto */
+  font-weight: bold;
+}
+
+/* MEDIA – amarillo */
+ion-item.selected-media {
+  background-color: #fff4cc; /* Color de fondo */
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+ion-item.selected-media ion-label {
+  color: #a67c00; /* Color del texto */
+  font-weight: bold;
+}
+
+/* ALTA – rojo */
+ion-item.selected-alta {
+  background-color: #fcdcdc; /* Color de fondo */
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+ion-item.selected-alta ion-label {
+  color: #a94442; /* Color del texto */
+  font-weight: bold;
+}

@@ -6,6 +6,7 @@ import { CameraService } from 'src/app/services/camera/camera.service';
 import { ActionSheetController } from '@ionic/angular';
 import { TareasService } from 'src/app/services/tareas/tareas.service';
 import { Tarea } from 'src/app/interfaces/tarea';
+import { FormularioComponent } from 'src/app/components/formulario/formulario.component';
 
 @Component({
   selector: 'app-home',
@@ -225,5 +226,13 @@ export class HomePage implements OnInit {
       buttons
     });
     await actionSheet.present();
+  }
+
+  async guardarTareaDesdeComponente(formData: any) {
+
+    this.nuevaTarea = formData;
+
+    await this.guardarTarea();
+
   }
 }
