@@ -122,6 +122,11 @@ export class HomePage implements OnInit {
     this.mostrarFormulario = true;
   }
 
+  editarTarea(tarea: Tarea) {
+    this.nuevaTarea = { ...tarea };
+    this.mostrarFormulario = true;
+  }
+
   cerrarFormulario() {
     this.mostrarFormulario = false;
     this.nuevaTarea = {
@@ -151,24 +156,34 @@ export class HomePage implements OnInit {
           `${h.getFullYear()}-${(h.getMonth() + 1).toString().padStart(2, '0')}-${h.getDate().toString().padStart(2, '0')}`;
       }
 
-      const tarea: Tarea = {
-        titulo: this.nuevaTarea.titulo || '',
-        descripcion: this.nuevaTarea.descripcion || '',
-        importancia: this.nuevaTarea.importancia || '',
-        fecha: fechaFormateada,
-        usuario_id: this.usuario.id
-      };
+        const tarea: Tarea = {
+          id: (this.nuevaTarea as any).id,
+          titulo: this.nuevaTarea.titulo || '',
+          descripcion: this.nuevaTarea.descripcion || '',
+          importancia: this.nuevaTarea.importancia || '',
+          fecha: fechaFormateada,
+          usuario_id: this.usuario.id
+        };
 
       console.log('Tarea a guardar:', tarea);
 
-      const guardado = await this.tareasService.guardarTarea(tarea);
-      console.log('Resultado del guardado:', guardado);
+      let result = false;
 
-      if (guardado) {
+      if (tarea.id) {
+        console.log('Actualizando tarea:', tarea);
+        result = await this.tareasService.actualizarTarea(tarea, this.usuario.id);
+      } else {
+        console.log('Guardando nueva tarea:', tarea);
+        result = await this.tareasService.guardarTarea(tarea);
+      }
+
+      console.log('Resultado operación tarea:', result);
+
+      if (result) {
         await this.cargarTareas();
         this.cerrarFormulario();
       } else {
-        console.error('No se pudo guardar la tarea');
+        console.error('No se pudo guardar/actualizar la tarea');
       }
     }
   }

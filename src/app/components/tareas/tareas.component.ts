@@ -15,8 +15,13 @@ export class TareasComponent {
   @Input() mensajeVacio: string = 'No hay tareas.';
 
   @Output() borrar = new EventEmitter<Tarea>();
+  @Output() editar = new EventEmitter<Tarea>();
 
   constructor(private tareasService: TareasService) {}
+
+  editarTarea(tarea: Tarea) {
+    this.editar.emit(tarea);
+  }
 
   borrarTarea(tarea: Tarea): void {
     if (!tarea?.id) {

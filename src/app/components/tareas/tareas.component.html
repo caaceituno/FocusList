@@ -6,8 +6,13 @@
       <div *ngFor="let tarea of tareas" class="tarea-item" [ngClass]="color">
         <h2>{{ tarea.titulo }}</h2>
         <p>{{ tarea.descripcion }}</p>
+        <div class="tarea-meta">
+          <ion-badge [color]="tarea.importancia === 'alta' ? 'danger' : (tarea.importancia === 'media' ? 'warning' : 'success')">
+            {{ tarea.importancia | titlecase }}
+          </ion-badge>
+        </div>
         <small *ngIf="tarea.fecha">{{ tarea.fecha | date: 'dd-MM-yyyy' }}</small>
-        <ion-button color="primary">Editar</ion-button>
+        <ion-button color="primary" (click)="editarTarea(tarea)">Editar</ion-button>
         <ion-button (click)="borrarTarea(tarea)" color="danger">Borrar</ion-button>
       </div>
     </ng-container>

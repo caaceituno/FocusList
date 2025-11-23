@@ -22,6 +22,7 @@
     titulo="Atrasadas"
     color="danger"
     [tareas]="tareasAtrasadas"
+    (editar)="editarTarea($event)"
     mensajeVacio="¡No hay tareas atrasadas! ¡Felicidades!">
   </app-tareas>
 
@@ -29,6 +30,7 @@
     titulo="Hoy"
     color="light"
     [tareas]="tareasHoy"
+    (editar)="editarTarea($event)"
     mensajeVacio="No tienes tareas para hoy.">
   </app-tareas>
 
@@ -36,6 +38,7 @@
     titulo="Próximamente"
     color="tertiary"
     [tareas]="tareasProximas"
+    (editar)="editarTarea($event)"
     mensajeVacio="¡No hay tareas próximas!">
   </app-tareas>
 
@@ -77,7 +80,7 @@
     
     <ion-header class="modal-header">
         <ion-toolbar>
-        <ion-title>Nueva Tarea</ion-title>
+        <ion-title>{{ nuevaTarea?.id ? 'Editar Tarea' : 'Nueva Tarea' }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" style="margin-top: 0px;" color="light" (click)="cerrarFormulario()">
             Cerrar
@@ -88,7 +91,9 @@
 
     <ion-content class="modal-content">
       <app-formulario 
-        (onSubmit)="guardarTareaDesdeComponente($event)">
+        [tarea]="nuevaTarea"
+        (onSubmit)="guardarTareaDesdeComponente($event)"
+        (onCancel)="cerrarFormulario()">
       </app-formulario>
     </ion-content>
 
