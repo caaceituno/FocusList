@@ -5,6 +5,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { FullCalendarComponent } from '@fullcalendar/angular';
 import { FeriadosService } from '../../services/feriado/feriado.service';
 import { ClimaService } from '../../services/clima/clima.service';
+import { TareasService } from 'src/app/services/tareas/tareas.service';
+import { UsuarioService } from 'src/app/services/registro/usuario.service';
+import { Tarea } from 'src/app/interfaces/tarea';
 import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
@@ -18,7 +21,9 @@ export class CalendarPage implements OnInit, OnDestroy {
   calendarOptions!: CalendarOptions;
   loading = true;
   allFeriados: any[] = [];
+  tareasEventos: any[] = [];
   eventosMes: any[] = [];
+  combinedEvents: any[] = [];
   tituloMes = '';
   diaActual = this.formatFecha(new Date());
   annio: number = new Date().getFullYear();
@@ -28,9 +33,14 @@ export class CalendarPage implements OnInit, OnDestroy {
   private watchId: any = null;
 
   // MODIFY constructor: inyectar ClimaService además de FeriadosService
+  private tareasSub: any;
+  usuarioId: number | null = null;
+
   constructor(
     private feriadosService: FeriadosService,
-    private climaService: ClimaService // <-- agregado
+    private climaService: ClimaService, // <-- agregado
+    private tareasService: TareasService,
+    private usuarioService: UsuarioService
   ) {}
 
   touchStartX = 0;
@@ -66,6 +76,8 @@ export class CalendarPage implements OnInit, OnDestroy {
           dateClick: this.handleDateClick.bind(this),
           datesSet: this.handleMonthChange.bind(this),
         };
+        // Cargar usuario y tareas del usuario
+        this.initTareasForUser().catch(err => console.warn('initTareasForUser error', err));
 
         this.updateEventosMes(new Date());
       },
@@ -74,6 +86,40 @@ export class CalendarPage implements OnInit, OnDestroy {
       },
       complete: () => {
         this.loading = false;
+      }
+    });
+  }
+
+  // Inicializa tareas del usuario y suscripción al observable
+  private async initTareasForUser() {
+    const usuario = await this.usuarioService.getUsuarioActivo();
+    if (!usuario?.id) return;
+    this.usuarioId = usuario.id;
+
+    // Obtener tareas iniciales (asegura que el servicio cargue de DB)
+    try {
+      await this.tareasService.obtenerTareas(this.usuarioId);
+    } catch (e) {
+      console.warn('Error obteniendo tareas iniciales', e);
+    }
+
+    // Suscribirse a cambios en tareas
+    this.tareasSub = this.tareasService.getTareasObservable().subscribe((tareas: Tarea[]) => {
+      this.tareasEventos = (tareas || []).map(t => ({
+        title: t.titulo || 'Tarea',
+        start: t.fecha,
+        allDay: true,
+        extendedProps: { tarea: t },
+        color: t.importancia === 'alta' ? '#ff5c5c' : (t.importancia === 'media' ? '#ffb86b' : '#8be08b')
+      }));
+
+      // Combinar feriados + tareas y actualizar calendario
+      this.combinedEvents = [...this.allFeriados, ...this.tareasEventos];
+      const calendarApi = this.fullCalendar?.getApi?.();
+      if (calendarApi) {
+        calendarApi.removeAllEvents();
+        calendarApi.addEventSource(this.combinedEvents);
+        this.updateEventosMes(calendarApi.getDate());
       }
     });
   }
@@ -161,8 +207,9 @@ export class CalendarPage implements OnInit, OnDestroy {
           color: '#ff5c5c',
         }));
         const calendarApi = this.fullCalendar.getApi();
+        this.combinedEvents = [...this.allFeriados, ...this.tareasEventos];
         calendarApi.removeAllEvents();
-        calendarApi.addEventSource(this.allFeriados);
+        calendarApi.addEventSource(this.combinedEvents);
         this.updateEventosMes(mitadRango);
       },
       error: (error) => console.error('Error cargando feriados:', error)
@@ -174,7 +221,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   updateEventosMes(fecha: Date) {
     const mes = fecha.getMonth();
     const anio = fecha.getFullYear();
-    this.eventosMes = this.allFeriados.filter((e) => {
+    this.eventosMes = (this.combinedEvents || []).filter((e) => {
       const d = new Date(e.start);
       return d.getMonth() === mes && d.getFullYear() === anio;
     });
@@ -236,6 +283,10 @@ export class CalendarPage implements OnInit, OnDestroy {
         Geolocation.clearWatch({ id: this.watchId });
       } catch {}
       this.watchId = null;
+    }
+    if (this.tareasSub) {
+      try { this.tareasSub.unsubscribe(); } catch {}
+      this.tareasSub = null;
     }
   }
 }
