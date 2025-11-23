@@ -22,12 +22,7 @@ export class HomePage implements OnInit {
   tareasProximas: Tarea[] = [];
   mostrarFormulario = false;
 
-  nuevaTarea: Partial<Tarea> = { 
-    titulo: '', 
-    descripcion: '', 
-    importancia: '', 
-    fecha: '' 
-  };
+  nuevaTarea: Partial<Tarea> | null = null;
 
   private tareasSub: any;
 
@@ -120,6 +115,12 @@ export class HomePage implements OnInit {
 
   abrirFormulario() {
     this.mostrarFormulario = true;
+    this.nuevaTarea = {
+      titulo: '',
+      descripcion: '',
+      importancia: '',
+      fecha: ''
+    };
   }
 
   editarTarea(tarea: Tarea) {
@@ -129,68 +130,55 @@ export class HomePage implements OnInit {
 
   cerrarFormulario() {
     this.mostrarFormulario = false;
-    this.nuevaTarea = {
-      titulo: '',
-      descripcion: '',
-      importancia: '',
-      fecha: ''
-    };
+    this.nuevaTarea = null;
   }
 
   async guardarTarea() {
-    console.log("EL FORMULARIO SÍ SE EJECUTÓ");
-    console.log("VALIDACIÓN:", this.validarTarea());
-    console.log("NUEVA TAREA:", this.nuevaTarea);
-    if (this.usuario?.id && this.validarTarea()) {
+    if (!this.nuevaTarea) return;
+    if (!this.usuario?.id) return;
+    if (!this.validarTarea()) return;
 
-      // --- FORMATEAR FECHA CORRECTAMENTE PARA SQLITE (YYYY-MM-DD) ---
-      let fechaFormateada = '';
+    let fechaFormateada = '';
 
-      if (this.nuevaTarea.fecha) {
-        const f = new Date(this.nuevaTarea.fecha as string);
-        fechaFormateada =
-          `${f.getFullYear()}-${(f.getMonth() + 1).toString().padStart(2, '0')}-${f.getDate().toString().padStart(2, '0')}`;
-      } else {
-        const h = new Date();
-        fechaFormateada =
-          `${h.getFullYear()}-${(h.getMonth() + 1).toString().padStart(2, '0')}-${h.getDate().toString().padStart(2, '0')}`;
-      }
+    if (this.nuevaTarea?.fecha) {
+      const f = new Date(this.nuevaTarea.fecha as string);
+      fechaFormateada =
+        `${f.getFullYear()}-${(f.getMonth() + 1).toString().padStart(2, '0')}-${f.getDate().toString().padStart(2, '0')}`;
+    } else {
+      const h = new Date();
+      fechaFormateada =
+        `${h.getFullYear()}-${(h.getMonth() + 1).toString().padStart(2, '0')}-${h.getDate().toString().padStart(2, '0')}`;
+    }
 
-        const tarea: Tarea = {
-          id: (this.nuevaTarea as any).id,
-          titulo: this.nuevaTarea.titulo || '',
-          descripcion: this.nuevaTarea.descripcion || '',
-          importancia: this.nuevaTarea.importancia || '',
-          fecha: fechaFormateada,
-          usuario_id: this.usuario.id
-        };
+    const tarea: Tarea = {
+      id: this.nuevaTarea?.id ?? undefined,
+      titulo: this.nuevaTarea?.titulo ?? '',
+      descripcion: this.nuevaTarea?.descripcion ?? '',
+      importancia: this.nuevaTarea?.importancia ?? '',
+      fecha: fechaFormateada,
+      usuario_id: this.usuario.id
+    };
 
-      console.log('Tarea a guardar:', tarea);
+    let result = false;
 
-      let result = false;
+    if (tarea.id) {
+      result = await this.tareasService.actualizarTarea(tarea, this.usuario.id);
+    } else {
+      result = await this.tareasService.guardarTarea(tarea);
+    }
 
-      if (tarea.id) {
-        console.log('Actualizando tarea:', tarea);
-        result = await this.tareasService.actualizarTarea(tarea, this.usuario.id);
-      } else {
-        console.log('Guardando nueva tarea:', tarea);
-        result = await this.tareasService.guardarTarea(tarea);
-      }
-
-      console.log('Resultado operación tarea:', result);
-
-      if (result) {
-        await this.cargarTareas();
-        this.cerrarFormulario();
-      } else {
-        console.error('No se pudo guardar/actualizar la tarea');
-      }
+    if (result) {
+      await this.cargarTareas();
+      this.cerrarFormulario();
+    } else {
+      console.error('No se pudo guardar/actualizar la tarea');
     }
   }
 
   private validarTarea(): boolean {
-    if (!this.nuevaTarea.titulo || this.nuevaTarea.titulo.trim() === '') return false;
-    if (!this.nuevaTarea.fecha) return false;
+    if (!this.nuevaTarea) return false;
+    if (!this.nuevaTarea?.titulo || this.nuevaTarea.titulo.trim() === '') return false;
+    if (!this.nuevaTarea?.fecha) return false;
     return true;
   }
 

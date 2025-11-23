@@ -62,13 +62,12 @@ ion-content {
   font-size: 0.95rem;
   line-height: 1.1;
   background: #fbb03c;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .weather-title {
   font-weight: 600;
   font-size: 1rem;
-  margin-bottom: 6px;
 }
 
 .weather-line {
@@ -136,7 +135,6 @@ ion-buttons[slot="end"] {
     border-radius: 6px;
     padding: 1px 3px;
     margin: 1px 0;
-    background-color: #ff5c5c !important; //feriados
     border: none;
     color: white;
   }
@@ -285,4 +283,19 @@ ion-footer {
       color: #ffffff;
     }
   }
+}
+
+.evento-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.sin-eventos {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  margin-top: 20px;
 }

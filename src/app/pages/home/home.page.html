@@ -80,7 +80,7 @@
     
     <ion-header class="modal-header">
         <ion-toolbar>
-        <ion-title>{{ nuevaTarea.id ? 'Editar Tarea' : 'Nueva Tarea' }}</ion-title>
+        <ion-title>{{ nuevaTarea?.id ? 'Editar Tarea' : 'Nueva Tarea' }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" style="margin-top: 0px;" color="light" (click)="cerrarFormulario()">
             Cerrar

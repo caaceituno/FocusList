@@ -6,7 +6,8 @@
     </div>
 
       <div class="weather-info" *ngIf="weatherData" slot="end">
-        <div class="weather-title">Clima en {{ weatherData.location?.name ?? '...' }}</div>
+        <div class="weather-title">Clima en</div>
+        <div class="weather-title">{{ weatherData.location?.name ?? '...' }}</div>
         <div class="weather-line">Temperatura: {{ weatherData.current?.temp_c ?? '—' }}°C</div>
         <div class="weather-line">Condiciones: {{ weatherData.current?.condition?.text ?? '—' }}</div>
       </div>
@@ -63,6 +64,41 @@
     </div>
   </ng-template>
 </ion-content>
+
+<!-- MODAL DE EVENTOS DEL DÍA -->
+<ion-modal 
+  [isOpen]="mostrarModal" 
+  (didDismiss)="mostrarModal = false"
+  initial-breakpoint="0.35"
+  breakpoints="0, 0.35, 0.6, 0.9"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>
+          Eventos del {{ fechaSeleccionada }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="mostrarModal = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+
+      <div *ngIf="eventosDelDia.length === 0" class="sin-eventos">
+        No hay eventos para este día.
+      </div>
+
+      <div *ngFor="let e of eventosDelDia"
+           class="evento-item"
+           [style.background]="e.color || '#999'">
+        <strong>{{ e.title }}</strong>
+      </div>
+
+    </ion-content>
+  </ng-template>
+</ion-modal>
 
 <ion-footer>
   <div class="bottom-nav">

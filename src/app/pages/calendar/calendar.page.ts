@@ -27,6 +27,8 @@ export class CalendarPage implements OnInit, OnDestroy {
   tituloMes = '';
   diaActual = this.formatFecha(new Date());
   annio: number = new Date().getFullYear();
+  eventosFeriadosMes: any[] = [];
+  tareasMes: any[] = [];
 
   // ADDED: clima state
   weatherData: any = null;
@@ -35,6 +37,10 @@ export class CalendarPage implements OnInit, OnDestroy {
   // MODIFY constructor: inyectar ClimaService además de FeriadosService
   private tareasSub: any;
   usuarioId: number | null = null;
+  
+  mostrarModal = false;
+  eventosDelDia: any[] = [];
+  fechaSeleccionada = '';
 
   constructor(
     private feriadosService: FeriadosService,
@@ -63,7 +69,7 @@ export class CalendarPage implements OnInit, OnDestroy {
           title: feriado.title || feriado.name || 'Feriado',
           start: feriado.date,
           allDay: true,
-          color: '#ff5c5c',
+          color: '#a9a9a9',
         }));
 
         this.calendarOptions = {
@@ -184,7 +190,36 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   handleDateClick(arg: any) {
-    alert(`Día seleccionado: ${arg.dateStr}`);
+    const fecha = arg.dateStr;
+
+    // Convertir a Date para comparar
+    const d = new Date(fecha);
+
+    // Buscar feriados
+    const feriados = this.allFeriados.filter(f => {
+      const fd = new Date(f.start);
+      return (
+        fd.getFullYear() === d.getFullYear() &&
+        fd.getMonth() === d.getMonth() &&
+        fd.getDate() === d.getDate()
+      );
+    });
+
+    // Buscar tareas
+    const tareas = this.tareasEventos.filter(t => {
+      const td = new Date(t.start);
+      return (
+        td.getFullYear() === d.getFullYear() &&
+        td.getMonth() === d.getMonth() &&
+        td.getDate() === d.getDate()
+      );
+    });
+
+    // Guardar en variables que usará el modal
+    this.eventosDelDia = [...feriados, ...tareas];
+    this.fechaSeleccionada = fecha;
+
+    this.mostrarModal = true; // Abre el modal
   }
 
   handleMonthChange(arg: any) {
@@ -205,7 +240,7 @@ export class CalendarPage implements OnInit, OnDestroy {
           title: feriado.title || feriado.name || 'Feriado',
           start: feriado.date,
           allDay: true,
-          color: '#ff5c5c',
+          color: '#a9a9a9',
         }));
         const calendarApi = this.fullCalendar.getApi();
         this.combinedEvents = [...this.allFeriados, ...this.tareasEventos];
@@ -222,10 +257,21 @@ export class CalendarPage implements OnInit, OnDestroy {
   updateEventosMes(fecha: Date) {
     const mes = fecha.getMonth();
     const anio = fecha.getFullYear();
-    this.eventosMes = (this.combinedEvents || []).filter((e) => {
+
+    // Feriados del mes
+    this.eventosFeriadosMes = this.allFeriados.filter((e) => {
       const d = new Date(e.start);
       return d.getMonth() === mes && d.getFullYear() === anio;
     });
+
+    // Tareas del mes
+    this.tareasMes = this.tareasEventos.filter((t) => {
+      const d = new Date(t.start);
+      return d.getMonth() === mes && d.getFullYear() === anio;
+    });
+
+    // Si quieres mantener la lista combinada
+    this.eventosMes = [...this.eventosFeriadosMes, ...this.tareasMes];
   }
 
   updateTituloMes(fecha: Date) {
