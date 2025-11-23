@@ -127,6 +127,8 @@ export class CalendarPage implements OnInit, OnDestroy {
   // NEW: inicializar geolocalización y watch
   private async initClima() {
     console.log('[CalendarPage] initClima');
+
+    // Pedir permisos
     try {
       const perm: any = await Geolocation.requestPermissions();
       const granted = perm?.location === 'granted' || perm === 'granted';
@@ -139,6 +141,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       console.warn('requestPermissions error', e);
     }
 
+    // Obtener clima inicial
     try {
       const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true }).catch(() => null);
       if (pos?.coords) {
@@ -150,25 +153,23 @@ export class CalendarPage implements OnInit, OnDestroy {
       console.error('Error al obtener posición inicial', e);
     }
 
-    // iniciar watch (safe)
-    try {
-      this.watchId = await Geolocation.watchPosition(
-        { enableHighAccuracy: true, maximumAge: 1000 },
-        (position, err) => {
-          if (err) {
-            console.error('Geolocation watch error', err);
-            return;
-          }
-          if (!position) return;
-          this.fetchWeather(position.coords.latitude, position.coords.longitude);
-        }
-      );
-    } catch (e) {
-      console.warn('watchPosition failed', e);
-    }
+    // *** OPCIONAL: refrescar cada 30 min ***
+    setInterval(() => {
+      this.updateWeatherOnce();
+    }, 30 * 60 * 1000); // 30 minutos
   }
 
-  // NEW: obtener clima usando el servicio existente
+  //Método pequeño para refrescar clima
+  private async updateWeatherOnce() {
+    try {
+      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+      if (pos?.coords) {
+        this.fetchWeather(pos.coords.latitude, pos.coords.longitude);
+      }
+    } catch {}
+  }
+
+  //obtener clima usando el servicio existente
   private fetchWeather(lat: number, lon: number) {
     console.log('[CalendarPage] fetchWeather', lat, lon);
     this.climaService.getWeatherByCoords(lat, lon).subscribe({
@@ -277,13 +278,6 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // limpiar watch de geolocalización si existe
-    if (this.watchId != null) {
-      try {
-        Geolocation.clearWatch({ id: this.watchId });
-      } catch {}
-      this.watchId = null;
-    }
     if (this.tareasSub) {
       try { this.tareasSub.unsubscribe(); } catch {}
       this.tareasSub = null;
