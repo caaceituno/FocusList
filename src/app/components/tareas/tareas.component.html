@@ -4,16 +4,31 @@
   <div class="tareas-container">
     <ng-container *ngIf="tareas.length > 0; else sinTareas">
       <div *ngFor="let tarea of tareas" class="tarea-item" [ngClass]="color">
-        <h2>{{ tarea.titulo }}</h2>
-        <p>{{ tarea.descripcion }}</p>
-        <div class="tarea-meta">
-          <ion-badge [color]="tarea.importancia === 'alta' ? 'danger' : (tarea.importancia === 'media' ? 'warning' : 'success')">
-            {{ tarea.importancia | titlecase }}
-          </ion-badge>
+        <div class="tarea-content">
+          <div class="tarea-header">
+            <h2>{{ tarea.titulo }}</h2>
+            <div class="tarea-meta">
+              <ion-badge [color]="tarea.importancia === 'alta' ? 'danger' : (tarea.importancia === 'media' ? 'warning' : 'success')">
+                {{ tarea.importancia | titlecase }}
+              </ion-badge>
+            </div>
+          </div>
+
+          <p>{{ tarea.descripcion }}</p>
+          <small *ngIf="tarea.fecha">{{ tarea.fecha | date: 'dd-MM-yyyy' }}</small>
         </div>
-        <small *ngIf="tarea.fecha">{{ tarea.fecha | date: 'dd-MM-yyyy' }}</small>
-        <ion-button color="primary" (click)="editarTarea(tarea)">Editar</ion-button>
-        <ion-button (click)="borrarTarea(tarea)" color="danger">Borrar</ion-button>
+
+        <div class="tarea-actions">
+          <ion-button size="small" fill="clear" color="primary" (click)="editarTarea(tarea)">
+            <ion-icon slot="start" name="create-outline"></ion-icon>
+            Editar
+          </ion-button>
+
+          <ion-button size="small" fill="clear" color="danger" (click)="borrarTarea(tarea)">
+            <ion-icon slot="start" name="trash-outline"></ion-icon>
+            Eliminar
+          </ion-button>
+        </div>
       </div>
     </ng-container>
 
