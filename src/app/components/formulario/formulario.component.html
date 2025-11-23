@@ -2,18 +2,32 @@
 
   <ion-item>
     <ion-label class="box-label" position="stacked">Título</ion-label>
-    <ion-input [(ngModel)]="nuevaTarea.titulo" name="titulo" required></ion-input>
+    <ion-input
+      [(ngModel)]="nuevaTarea.titulo"
+      name="titulo"
+      required
+      #tituloCtrl="ngModel">
+    </ion-input>
   </ion-item>
+  <ion-note style="padding-left: 15px;" color="danger" *ngIf="formSubmitted && tituloCtrl.invalid">
+    El título es obligatorio.
+  </ion-note>
 
   <ion-item>
     <ion-label class="box-label" position="stacked">Descripción</ion-label>
-    <ion-textarea [(ngModel)]="nuevaTarea.descripcion" name="descripcion"></ion-textarea>
+    <ion-input
+      placeholder="(opcional) max. 500 caracteres"
+      maxlength="500"
+      [(ngModel)]="nuevaTarea.descripcion"
+      name="descripcion">
+    </ion-input>
   </ion-item>
 
   <ion-item lines="none"> 
     <ion-label class="box-label" position="stacked">Importancia</ion-label>
   </ion-item>
-  <ion-radio-group [(ngModel)]="nuevaTarea.importancia" name="importancia">
+
+  <ion-radio-group [(ngModel)]="nuevaTarea.importancia" name="importancia" required #importanciaCtrl="ngModel">
     <ion-item 
       lines="none" 
       [ngClass]="{'selected-baja': nuevaTarea.importancia === 'baja'}">
@@ -34,10 +48,17 @@
     </ion-item>
   </ion-radio-group>
 
+  <ion-note style="padding-left: 15px;" color="danger" *ngIf="formSubmitted && importanciaCtrl.invalid">
+    Debe elegir una importancia.
+  </ion-note>
+
   <ion-item lines="none">
     <ion-label class="box-label" style="padding-bottom: 40px !important;" position="stacked">Fecha</ion-label>
     <ion-datetime presentation="date" [(ngModel)]="nuevaTarea.fecha" name="fecha"></ion-datetime>
   </ion-item>
+  <ion-note style="padding-left: 15px;" color="danger" *ngIf="formSubmitted && !nuevaTarea.fecha">
+    Debe seleccionar una fecha.
+  </ion-note>
 
   <ion-button expand="block" type="submit" class="btn-guardar">
     Guardar Tarea
