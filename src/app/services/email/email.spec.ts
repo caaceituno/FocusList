@@ -1,16 +1,17 @@
 import { TestBed } from '@angular/core/testing';
+import { EmailService } from './email';
 
-export class Email {}
-
-describe('Email', () => {
-  let service: Email;
+describe('ServicioCorreo', () => {
+  let servicio: EmailService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Email);
+    TestBed.configureTestingModule({
+      providers: [EmailService]
+    });
+    servicio = TestBed.inject(EmailService);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('debe crearse', () => {
+    expect(servicio).toBeTruthy();
   });
 });

@@ -1,17 +1,30 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TestPage } from './test.page';
+import { IonicModule } from '@ionic/angular';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ClimaService } from '../../services/clima/clima.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
-describe('TestPage', () => {
-  let component: TestPage;
+describe('PáginaPrueba', () => {
+  let componente: TestPage;
   let fixture: ComponentFixture<TestPage>;
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TestPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [TestPage],
+      imports: [IonicModule.forRoot(), HttpClientTestingModule],
+      providers: [
+        ClimaService
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    fixture = TestBed.createComponent(TestPage);
+    componente = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
+
+  it('debe crearse', () => {
+    expect(componente).toBeTruthy();
   });
 });
