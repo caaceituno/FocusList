@@ -1,17 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { IonicModule } from '@ionic/angular';
 import { NotfoundPage } from './not-found.page';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
-describe('NotfoundPage', () => {
-  let component: NotfoundPage;
+describe('PáginaPáginaNoEncontrada', () => {
+  let componente: NotfoundPage;
   let fixture: ComponentFixture<NotfoundPage>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [NotfoundPage],
+      imports: [IonicModule.forRoot()],
+      schemas: [NO_ERRORS_SCHEMA]
+    }).compileComponents();
+
     fixture = TestBed.createComponent(NotfoundPage);
-    component = fixture.componentInstance;
+    componente = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('debe crearse', () => {
+    expect(componente).toBeTruthy();
   });
 })

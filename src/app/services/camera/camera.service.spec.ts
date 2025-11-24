@@ -2,15 +2,17 @@ import { TestBed } from '@angular/core/testing';
 
 import { CameraService } from './camera.service';
 
-describe('CameraServicec', () => {
-  let service: CameraService;
+describe('ServicioCámara', () => {
+  let servicio: CameraService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(CameraService);
+    TestBed.configureTestingModule({
+      providers: [CameraService]
+    });
+    servicio = TestBed.inject(CameraService);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('debe crearse', () => {
+    expect(servicio).toBeTruthy();
   });
 });

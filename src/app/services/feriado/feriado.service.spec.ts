@@ -1,16 +1,20 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { FeriadosService } from './feriado.service';
 
-describe('FeriadosService', () => {
-  let service: FeriadosService;
+describe('ServicioFeriados', () => {
+  let servicio: FeriadosService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(FeriadosService);
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [FeriadosService]
+    });
+    servicio = TestBed.inject(FeriadosService);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('debe crearse', () => {
+    expect(servicio).toBeTruthy();
   });
 });
