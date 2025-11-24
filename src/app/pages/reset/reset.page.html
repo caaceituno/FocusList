@@ -1,28 +1,35 @@
 <ion-content class="ion-padding login-pag" [fullscreen]="true">
   <div class="center-box">
     <div class="login-content">
+
       <div class="login-text" style="display: flex; flex-direction: column; align-items: flex-start;">
         <div style="display: flex; align-items: center;">
-          <h1 class="title">Ingresa a tu email</h1>
-          <ion-icon name="mail-outline" style="font-size: 40px; margin-top: 14px; color: #838383;"></ion-icon>
+          <h1 class="title">Nueva contraseña</h1>
+          <ion-icon name="key-outline" style="font-size: 40px; margin-top: 14px; color: #838383;"></ion-icon>
         </div>
-        <p class="subtitle" style="color: #5a5a5a; margin-top: 10px;">Ingresa tu correo para recuperar tu contraseña.</p>
+        <p class="subtitle" style="color: #5a5a5a; margin-top: 10px;">
+          Ingresa la nueva contraseña para tu cuenta.
+        </p>
       </div>
+
       <ion-card-content>
+
         <ion-item>
           <ion-input
-            label="Email"
-            type="email"
+            label="Nueva contraseña"
+            type="password"
             labelPlacement="floating"
-            placeholder="email@domain.com"
-            [(ngModel)]="email">
+            placeholder="********"
+            [(ngModel)]="password">
           </ion-input>
         </ion-item>
 
-        <ion-button expand="block" (click)="enviarCorreo()">
-          Enviar
+        <ion-button expand="block" (click)="resetPassword()">
+          Cambiar contraseña
         </ion-button>
+
       </ion-card-content>
+
     </div>
   </div>
 </ion-content>

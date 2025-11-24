@@ -202,4 +202,55 @@ export class UsuarioService {
       null
     );
   }
+
+  // ===========================================================
+  // BUSCAR USUARIO POR EMAIL (para recuperación de contraseña)
+  // ===========================================================
+  async buscarPorEmail(email: string) {
+    const usuarios = await this.db.cargarUsuarios(); // Cargar usuarios desde SQLite
+    return usuarios.find(u => u.email === email) || null;
+  }
+
+  // ===========================================================
+  // TOKEN DE RECUPERACIÓN
+  // ===========================================================
+
+  // Guarda token temporal
+  async guardarToken(email: string, token: string) {
+    const usuarios = await this.db.cargarUsuarios();
+    const usuario = usuarios.find(u => u.email === email);
+    if (!usuario) return;
+
+    await this.db.actualizarUsuario(
+      usuario.id!,
+      usuario.nombre!,
+      usuario.apellido!,
+      usuario.email!,
+      usuario.contrasena!,
+      usuario.fotoPerfil ?? null,
+      token  // Nuevo campo token
+    );
+  }
+
+  // Buscar usuario por token
+  async buscarPorToken(token: string) {
+    return await this.db.buscarUsuarioPorToken(token);
+  }
+
+  // Actualizar contraseña
+  async actualizarContrasena(email: string, nueva: string) {
+    const usuarios = await this.db.cargarUsuarios();
+    const usuario = usuarios.find(u => u.email === email);
+    if (!usuario) return;
+
+    await this.db.actualizarUsuario(
+      usuario.id!,
+      usuario.nombre!,
+      usuario.apellido!,
+      usuario.email!,
+      nueva,
+      usuario.fotoPerfil ?? null,
+      null   // destruir token
+    );
+  }
 }

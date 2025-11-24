@@ -56,6 +56,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/recover/recover.module').then( m => m.RecoverPageModule)
   },
   {
+    path: 'reset',
+    loadChildren: () => import('./pages/reset/reset.module').then( m => m.ResetPageModule)
+  },
+  {
+    path: 'token',
+    loadChildren: () => import('./pages/token/token.module').then( m => m.TokenPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'not-found'
   },

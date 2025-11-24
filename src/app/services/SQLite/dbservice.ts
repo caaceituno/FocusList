@@ -1,6 +1,5 @@
 import { SQLite, SQLiteObject } from '@awesome-cordova-plugins/sqlite/ngx';
 import { Platform, ToastController } from '@ionic/angular';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Usuario } from 'src/app/clases/usuario';
 import { Tarea } from 'src/app/interfaces/tarea';
@@ -20,7 +19,7 @@ export class Dbservice {
     private platform: Platform,
     private toastController: ToastController
   ) {
-    // Crear promesa de DB lista
+    // Promesa para indicar cuándo la DB está lista
     this.dbReady = new Promise((resolve) => {
       this.dbReadyResolve = resolve;
     });
@@ -45,7 +44,6 @@ export class Dbservice {
 
       await this.crearTablas();
 
-      // BD lista → liberar bloqueo
       this.dbReadyResolve();
 
     } catch (err) {
@@ -55,6 +53,7 @@ export class Dbservice {
 
   private async crearTablas() {
     try {
+      // Tabla usuario con TOKEN agregado
       await this.database.executeSql(`
         CREATE TABLE IF NOT EXISTS usuario (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +61,8 @@ export class Dbservice {
           apellido TEXT NOT NULL,
           email TEXT NOT NULL,
           contrasena TEXT NOT NULL,
-          fotoPerfil TEXT
+          fotoPerfil TEXT,
+          token TEXT
         )`, []);
 
       await this.database.executeSql(`
@@ -119,11 +119,18 @@ export class Dbservice {
     return items;
   }
 
-  async addUsuario(nombre: string, apellido: string, email: string, contrasena: string, fotoPerfil: any = null): Promise<number> {
+  async addUsuario(
+    nombre: string,
+    apellido: string,
+    email: string,
+    contrasena: string,
+    fotoPerfil: any = null
+  ): Promise<number> {
+
     await this.dbReady;
 
     const res = await this.database.executeSql(
-      'INSERT INTO usuario(nombre, apellido, email, contrasena, fotoPerfil) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO usuario(nombre, apellido, email, contrasena, fotoPerfil, token) VALUES (?, ?, ?, ?, ?, NULL)',
       [nombre, apellido, email, contrasena, fotoPerfil]
     );
 
@@ -133,21 +140,80 @@ export class Dbservice {
   async addUsuarioActivo(id: number) {
     await this.dbReady;
 
-    await this.database.executeSql('INSERT INTO usuariosActivos(id) VALUES (?)', [id]);
+    await this.database.executeSql(
+      'INSERT INTO usuariosActivos(id) VALUES (?)',
+      [id]
+    );
   }
 
-  async actualizarUsuario(id: number, nombre: string, apellido: string, email: string, contrasena: string, fotoPerfil: any) {
+  async actualizarUsuario(
+    id: number,
+    nombre: string,
+    apellido: string,
+    email: string,
+    contrasena: string,
+    fotoPerfil: any,
+    token: string | null = null
+  ) {
+
     await this.dbReady;
 
     await this.database.executeSql(
-      'UPDATE usuario SET nombre=?, apellido=?, email=?, contrasena=?, fotoPerfil=? WHERE id=?',
-      [nombre, apellido, email, contrasena, fotoPerfil, id]
+      'UPDATE usuario SET nombre=?, apellido=?, email=?, contrasena=?, fotoPerfil=?, token=? WHERE id=?',
+      [nombre, apellido, email, contrasena, fotoPerfil, token, id]
     );
   }
 
   async eliminarUsuario(id: number) {
     await this.dbReady;
-    await this.database.executeSql('DELETE FROM usuario WHERE id=?', [id]);
+    await this.database.executeSql(
+      'DELETE FROM usuario WHERE id=?',
+      [id]
+    );
+  }
+
+  // ============================================================
+  // TOKEN RECUPERACIÓN
+  // ============================================================
+
+  async guardarToken(email: string, token: string) {
+    await this.dbReady;
+
+    await this.database.executeSql(
+      'UPDATE usuario SET token=? WHERE email=?',
+      [token, email]
+    );
+  }
+
+  async buscarUsuarioPorToken(token: string): Promise<Usuario | null> {
+    await this.dbReady;
+
+    const res = await this.database.executeSql(
+      'SELECT * FROM usuario WHERE token=?',
+      [token]
+    );
+
+    if (res.rows.length === 0) return null;
+
+    return res.rows.item(0);
+  }
+
+  async limpiarToken(email: string) {
+    await this.dbReady;
+
+    await this.database.executeSql(
+      'UPDATE usuario SET token=NULL WHERE email=?',
+      [email]
+    );
+  }
+
+  async actualizarContrasena(email: string, nueva: string) {
+    await this.dbReady;
+
+    await this.database.executeSql(
+      'UPDATE usuario SET contrasena=? WHERE email=?',
+      [nueva, email]
+    );
   }
 
   // ============================================================
@@ -189,7 +255,10 @@ export class Dbservice {
     await this.dbReady;
 
     try {
-      await this.database.executeSql('DELETE FROM tareas WHERE id=?', [id]);
+      await this.database.executeSql(
+        'DELETE FROM tareas WHERE id=? AND usuario_id=?',
+        [id, usuario_id]
+      );
       return true;
 
     } catch (error) {
@@ -202,20 +271,21 @@ export class Dbservice {
     await this.dbReady;
 
     try {
-      const query = `
-        UPDATE tareas
-        SET titulo = ?, descripcion = ?, importancia = ?, fecha = ?
-        WHERE id = ? AND usuario_id = ?
-      `;
-
-      const result = await this.database.executeSql(query, [
-        tarea.titulo,
-        tarea.descripcion,
-        tarea.importancia,
-        tarea.fecha,
-        tarea.id,
-        usuario_id
-      ]);
+      const result = await this.database.executeSql(
+        `
+          UPDATE tareas
+          SET titulo = ?, descripcion = ?, importancia = ?, fecha = ?
+          WHERE id = ? AND usuario_id = ?
+        `,
+        [
+          tarea.titulo,
+          tarea.descripcion,
+          tarea.importancia,
+          tarea.fecha,
+          tarea.id,
+          usuario_id
+        ]
+      );
 
       return result.rowsAffected > 0;
 

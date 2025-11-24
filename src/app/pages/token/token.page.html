@@ -1,0 +1,31 @@
+<ion-content class="ion-padding login-pag" [fullscreen]="true">
+  <div class="center-box">
+    <div class="login-content">
+
+      <div class="login-text" style="display: flex; flex-direction: column; align-items: flex-start;">
+        <h1 class="title">Ingresa tu código</h1>
+        <p class="subtitle" style="color: #5a5a5a; margin-top: 10px;">
+          Escribe el código que te enviamos al correo.
+        </p>
+      </div>
+
+      <ion-card-content>
+
+        <ion-item>
+          <ion-input
+            type="text"
+            label="Código"
+            placeholder="Ingresa tu código"
+            [(ngModel)]="token">
+          </ion-input>
+        </ion-item>
+
+        <ion-button expand="block" (click)="validarToken()">
+          Validar código
+        </ion-button>
+
+      </ion-card-content>
+
+    </div>
+  </div>
+</ion-content>

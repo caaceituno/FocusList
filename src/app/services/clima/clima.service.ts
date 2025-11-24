@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Geolocation } from '@capacitor/geolocation';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ import { Geolocation } from '@capacitor/geolocation';
 export class ClimaService {
 
   private apiUrl = 'https://api.weatherapi.com/v1/current.json';
-  private apiKey = '144320d5e11b4000926144428252410';
+  private climaApiKey = environment.climaApiKey;
 
   // CACHE
   private cachedWeather: any = null;
@@ -38,7 +39,7 @@ export class ClimaService {
     }
 
     // 2) Llamada API solo una vez
-    const url = `${this.apiUrl}?key=${this.apiKey}&q=${this.cachedCoords.lat},${this.cachedCoords.lon}&lang=es`;
+    const url = `${this.apiUrl}?key=${this.climaApiKey}&q=${this.cachedCoords.lat},${this.cachedCoords.lon}&lang=es`;
 
     const data = await this.http.get(url).toPromise();
 
