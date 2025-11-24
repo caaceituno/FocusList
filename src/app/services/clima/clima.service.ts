@@ -1,19 +1,55 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Geolocation } from '@capacitor/geolocation';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClimaService {
-  private apiUrl = 'https://api.weatherapi.com/v1/current.json'; // HTTPS y endpoint correcto
+
+  private apiUrl = 'https://api.weatherapi.com/v1/current.json';
   private apiKey = '144320d5e11b4000926144428252410';
+
+  // CACHE
+  private cachedWeather: any = null;
+  private cachedCoords: { lat: number; lon: number } | null = null;
+  private hasLoaded = false;
 
   constructor(private http: HttpClient) {}
 
-  getWeatherByCoords(lat: number, lon: number): Observable<any> {
-    // weatherapi.com espera key y q=lat,lon
-    const url = `${this.apiUrl}?key=${this.apiKey}&q=${lat},${lon}&lang=es`;
-    return this.http.get(url);
+  /** Carga clima UNA sola vez (GPS solo una vez también) */
+  async loadWeatherOnce(): Promise<any> {
+
+    // Si ya cargamos clima antes → devolver inmediatamente
+    if (this.hasLoaded && this.cachedWeather) {
+      return this.cachedWeather;
+    }
+
+    // 1) Obtener ubicación (una sola vez)
+    if (!this.cachedCoords) {
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true
+      });
+
+      this.cachedCoords = {
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude
+      };
+    }
+
+    // 2) Llamada API solo una vez
+    const url = `${this.apiUrl}?key=${this.apiKey}&q=${this.cachedCoords.lat},${this.cachedCoords.lon}&lang=es`;
+
+    const data = await this.http.get(url).toPromise();
+
+    this.cachedWeather = data;
+    this.hasLoaded = true;
+
+    return data;
+  }
+
+  /** Permite obtener clima ya cargado sin pedir nada */
+  getCachedWeather() {
+    return this.cachedWeather;
   }
 }

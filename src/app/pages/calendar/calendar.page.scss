@@ -1,3 +1,18 @@
+/* ================================
+   FONDO GENERAL DE LA PÁGINA
+================================ */
+:host,
+ion-app,
+ion-page,
+ion-content,
+body {
+  background: #fffaf0 !important;
+  --background: #fffaf0 !important;
+}
+
+/* ================================
+   TITULOS DEL HEADER
+================================ */
 ion-title {
   font-size: 1.3rem;
   font-weight: 600;
@@ -10,10 +25,49 @@ ion-title {
   margin-left: 0px;
 }
 
+/* ================================
+   HEADER Y TOOLBAR
+================================ */
+ion-header,
 ion-toolbar {
-  --background: #fbb03c;
+  background: #fbb03c !important;
+  --background: #fbb03c !important;
 }
 
+/* Header animado desde arriba */
+.header-fixed {
+  transform: translateY(-12px);
+  opacity: 0;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-12px); }
+  to { transform: translateY(0); }
+}
+
+/* Fade para textos del header */
+.fade-text {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.fade-text.ready {
+  opacity: 1;
+}
+
+/* Fade del clima */
+.fade-weather {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.fade-weather.ready {
+  opacity: 1;
+}
+
+/* ================================
+   CONTENIDO PRINCIPAL
+================================ */
 ion-content {
   --background: #fffdf0;
   display: flex;
@@ -25,6 +79,9 @@ ion-content {
   --padding-bottom: 0;
 }
 
+/* ================================
+   BLOQUE PRINCIPAL DEL HEADER
+================================ */
 .welcome-card {
   display: flex;
   flex-direction: column;
@@ -50,7 +107,9 @@ ion-content {
   }
 }
 
-/* New/updated styles for weather block */
+/* ================================
+   BLOQUE DE CLIMA
+================================ */
 .weather-info {
   display: flex;
   flex-direction: column;
@@ -76,14 +135,15 @@ ion-content {
   opacity: 0.95;
 }
 
-/* ensure ion-buttons doesn't collapse the content */
 ion-buttons[slot="end"] {
   display: flex;
   align-items: center;
   padding-right: 8px;
 }
 
-//contenedor superior del calendario
+/* ================================
+   CONTENEDOR SUPERIOR DEL CALENDARIO
+================================ */
 .calendar-top {
   width: 100%;
   background-color: #fffdf0;
@@ -91,7 +151,9 @@ ion-buttons[slot="end"] {
   border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
-//FullCalendar cambios
+/* ================================
+   FULLCALENDAR
+================================ */
 ::ng-deep full-calendar {
   width: 100%;
   display: block;
@@ -117,7 +179,9 @@ ion-buttons[slot="end"] {
     border: none;
     color: #000;
     font-weight: 500;
-    font-size: 0.8rem;
+   
+
+ font-size: 0.8rem;
     padding: 4px 8px;
     border-radius: 6px;
     transition: background-color 0.2s ease;
@@ -146,7 +210,7 @@ ion-buttons[slot="end"] {
   }
 
   .fc-daygrid-day.fc-day-today {
-    border: 2px solid #ffd65a !important; //borde día actual
+    border: 2px solid #ffd65a !important;
     box-sizing: border-box;
   }
 
@@ -155,7 +219,9 @@ ion-buttons[slot="end"] {
   }
 }
 
-//estilo para la lista de eventos (feriados)
+/* ================================
+   LISTA DE FERIADOS Y TAREAS
+================================ */
 .event-list {
   padding: 8px 16px;
   background-color: #fffdf0;
@@ -188,7 +254,9 @@ ion-buttons[slot="end"] {
   }
 }
 
-//estilo para el contenedor de carga
+/* ================================
+   LOADER
+================================ */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -198,7 +266,9 @@ ion-buttons[slot="end"] {
   color: var(--ion-color-warning);
 }
 
-//diseño responsivo móvil
+/* ================================
+   RESPONSIVE
+================================ */
 @media (max-width: 420px) {
   ::ng-deep full-calendar {
     font-size: 0.75rem;
@@ -217,12 +287,13 @@ ion-buttons[slot="end"] {
   }
 }
 
-//elimina el fondo negro por default de fullcalendar
 .list-md {
   background: none !important;
 }
 
-//header del calendario (titulo/mes)
+/* ================================
+   TITULO DEL MES DEL CALENDARIO
+================================ */
 .calendar-header {
   padding: 12px 16px 0 16px;
   text-align: left;
@@ -247,8 +318,9 @@ ion-buttons[slot="end"] {
   }
 }
 
-
-
+/* ================================
+   FOOTER DE NAVEGACIÓN
+================================ */
 ion-footer {
   background-color: #fbb03c;
   padding: 8px 0;
@@ -286,6 +358,9 @@ ion-footer {
   }
 }
 
+/* ================================
+   MODAL DE EVENTOS DEL DÍA
+================================ */
 .evento-item {
   padding: 8px 12px;
   border-radius: 8px;
@@ -300,27 +375,31 @@ ion-footer {
   font-size: 16px;
   margin-top: 20px;
 }
+
+/* ================================
+   ANIMACIÓN DEL CONTENEDOR DEL CALENDARIO
+================================ */
 .calendar-wrapper {
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-/* Cuando esté lista, aparece con fade-in */
 .calendar-wrapper.ready {
   opacity: 1;
   transform: translateY(0);
 }
 
-.header-fixed {
-  background: #fbb03c !important;
-}
-
-.fade-weather {
+/* ================================
+   ANIMACIÓN DEL HEADER
+================================ */
+.animate-header,
+.fade-in {
   opacity: 0;
-  transition: opacity 0.45s ease;
+  animation: aparecer 0.45s ease-out forwards;
 }
 
-.fade-weather.ready {
-  opacity: 1;
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
 }

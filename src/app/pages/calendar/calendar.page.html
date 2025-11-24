@@ -1,35 +1,52 @@
-<ion-header class="header-fixed">
+<!-- ================================
+     HEADER (con animación)
+================================ -->
+<ion-header class="header-fixed" [class.fade-in]="headerAnimate">
   <ion-toolbar>
+
+    <!-- Bloque principal del encabezado -->
     <div class="welcome-card">
       <ion-title>Calendario</ion-title>
       <h2 class="calendar-title">Hoy, {{ diaActual }}</h2>
     </div>
 
-    <!-- Clima (solo este hace fade) -->
+    <!-- Bloque de clima -->
     <div class="weather-info fade-weather" [class.ready]="weatherData" slot="end">
       <div class="weather-title">Clima en</div>
       <div class="weather-title">{{ weatherData?.location?.name }}</div>
       <div class="weather-line">Temperatura: {{ weatherData?.current?.temp_c }}°C</div>
       <div class="weather-line">Condiciones: {{ weatherData?.current?.condition?.text }}</div>
     </div>
+
   </ion-toolbar>
 </ion-header>
 
+<!-- ================================
+     CONTENIDO PRINCIPAL
+================================ -->
 <ion-content>
   <div class="calendar-wrapper" [class.ready]="calendarReady">
+
+    <!-- Calendario y listas -->
     <ng-container *ngIf="!loading; else loadingTemplate">
-      <!-- calendario superior -->
+
+      <!-- Título del mes -->
       <div class="calendar-header">
-        <h2 class="ion-text-center" style="color: rgb(92, 92, 92);">{{ tituloMes }}</h2>
+        <h2 class="ion-text-center" style="color: rgb(92, 92, 92);">
+          {{ tituloMes }}
+        </h2>
       </div>
 
-      <div class="calendar-top" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+      <!-- Calendario interactivo -->
+      <div class="calendar-top"
+           (touchstart)="onTouchStart($event)"
+           (touchend)="onTouchEnd($event)">
         <full-calendar #fullCalendar [options]="calendarOptions"></full-calendar>
       </div>
 
-
-      <!-- lista de feriados -->
+      <!-- Lista de feriados y tareas -->
       <div class="event-list">
+
         <h2 style="color: rgb(78, 78, 78);">Feriados del mes</h2>
         <ion-list lines="none">
           <ion-item *ngFor="let evento of eventosFeriadosMes" class="event-item">
@@ -48,15 +65,20 @@
               <h3 style="color: rgb(107, 107, 107); font-weight: 600;">{{ tarea.title }}</h3>
               <p style="color: rgb(119, 119, 119);">{{ formatFecha(tarea.start) }}</p>
             </ion-label>
-            <ion-badge slot="end" [style.background]="tarea.color" style="color: white;">{{
-              (tarea.extendedProps?.tarea?.importancia || 'Tarea') | titlecase }}</ion-badge>
+            <ion-badge slot="end"
+              [style.background]="tarea.color"
+              style="color: white;"
+            >
+              {{ (tarea.extendedProps?.tarea?.importancia || 'Tarea') | titlecase }}
+            </ion-badge>
           </ion-item>
         </ion-list>
+
       </div>
     </ng-container>
   </div>
 
-  <!-- animacion de carga -->
+  <!-- Loader -->
   <ng-template #loadingTemplate>
     <div class="loading-container">
       <ion-spinner name="crescent" color="warning"></ion-spinner>
@@ -65,15 +87,19 @@
   </ng-template>
 </ion-content>
 
-<!-- MODAL DE EVENTOS DEL DÍA -->
-<ion-modal [isOpen]="mostrarModal" (didDismiss)="mostrarModal = false" initial-breakpoint="0.35"
-  [breakpoints]="[0, 0.35, 0.6, 0.9]">
+<!-- ================================
+     MODAL DE EVENTOS DEL DÍA
+================================ -->
+<ion-modal
+  [isOpen]="mostrarModal"
+  (didDismiss)="mostrarModal = false"
+  initial-breakpoint="0.35"
+  [breakpoints]="[0, 0.35, 0.6, 0.9]"
+>
   <ng-template>
     <ion-header>
       <ion-toolbar color="primary">
-        <ion-title>
-          Eventos del {{ fechaSeleccionada }}
-        </ion-title>
+        <ion-title>Eventos del {{ fechaSeleccionada }}</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="mostrarModal = false">Cerrar</ion-button>
         </ion-buttons>
@@ -86,7 +112,9 @@
         No hay eventos para este día.
       </div>
 
-      <div *ngFor="let e of eventosDelDia" class="evento-item" [style.background]="e.color || '#999'">
+      <div *ngFor="let e of eventosDelDia"
+           class="evento-item"
+           [style.background]="e.color || '#999'">
         <strong>{{ e.title }}</strong>
       </div>
 
@@ -94,8 +122,12 @@
   </ng-template>
 </ion-modal>
 
+<!-- ================================
+     FOOTER DE NAVEGACIÓN
+================================ -->
 <ion-footer>
   <div class="bottom-nav">
+
     <div class="nav-item" [routerLink]="['/home']">
       <ion-icon name="time-outline"></ion-icon>
       <span>Hoy</span>
@@ -110,5 +142,6 @@
       <ion-icon name="person-outline"></ion-icon>
       <span>Perfil</span>
     </div>
+
   </div>
 </ion-footer>

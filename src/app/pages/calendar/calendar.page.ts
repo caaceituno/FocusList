@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { CalendarOptions, CalendarApi } from '@fullcalendar/core';
+import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FullCalendarComponent } from '@fullcalendar/angular';
@@ -8,7 +8,6 @@ import { ClimaService } from '../../services/clima/clima.service';
 import { TareasService } from 'src/app/services/tareas/tareas.service';
 import { UsuarioService } from 'src/app/services/registro/usuario.service';
 import { Tarea } from 'src/app/interfaces/tarea';
-import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
   selector: 'app-calendar',
@@ -17,61 +16,94 @@ import { Geolocation } from '@capacitor/geolocation';
   standalone: false,
 })
 export class CalendarPage implements OnInit, OnDestroy {
+
   @ViewChild('fullCalendar') fullCalendar!: FullCalendarComponent;
+
+  /* ================================
+     ESTADO PRINCIPAL
+  ================================== */
   calendarOptions!: CalendarOptions;
   loading = true;
+
   allFeriados: any[] = [];
   tareasEventos: any[] = [];
-  eventosMes: any[] = [];
   combinedEvents: any[] = [];
+
+  eventosMes: any[] = [];
+  eventosFeriadosMes: any[] = [];
+  tareasMes: any[] = [];
+
   tituloMes = '';
   diaActual = this.formatFecha(new Date());
   annio: number = new Date().getFullYear();
-  eventosFeriadosMes: any[] = [];
-  tareasMes: any[] = [];
+
   calendarReady = false;
-  headerReady = false;
-  private climaLoaded = false;
-  private headerTimeout: any;
 
-  // ADDED: clima state
+  /* Header animado */
+  headerReady = true;
+  headerAnimate = false;
+
+  /* Clima */
   weatherData: any = null;
-  private watchId: any = null;
 
-  // MODIFY constructor: inyectar ClimaService además de FeriadosService
+  /* Usuario y tareas */
   private tareasSub: any;
   usuarioId: number | null = null;
-  
+
+  /* Modal */
   mostrarModal = false;
   eventosDelDia: any[] = [];
   fechaSeleccionada = '';
 
+  touchStartX = 0;
+  touchEndX = 0;
+
   constructor(
     private feriadosService: FeriadosService,
-    private climaService: ClimaService, // <-- agregado
+    private climaService: ClimaService,
     private tareasService: TareasService,
     private usuarioService: UsuarioService
   ) {}
 
-  touchStartX = 0;
-  touchEndX = 0;
+  /* ================================
+     ANIMACIÓN DEL HEADER AL ENTRAR
+  ================================= */
+  ionViewDidEnter() {
+    this.headerAnimate = false;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.headerAnimate = true;
+      });
+    });
+  }
 
+  /* ================================
+     INICIALIZACIÓN
+  ================================= */
   async ngOnInit() {
-    // INICIALIZA clima (no bloqueante)
-    this.initClima().catch(err => console.warn('initClima error', err));
+
+    setTimeout(() => {
+      this.headerReady = true;
+    }, 30);
+
+    this.weatherData = this.climaService.getCachedWeather();
+    if (!this.weatherData) {
+      this.climaService.loadWeatherOnce().then(data => {
+        this.weatherData = data;
+      });
+    }
 
     this.feriadosService.obtenerFeriados(this.annio).subscribe({
       next: (data) => {
-        console.log('🔍 RAW DATA FERIADOS:', data);
-        const rawData = Array.isArray(data)
+        const raw = Array.isArray(data)
           ? data
           : data?.data
           ? data.data
           : data[this.annio] || [];
 
-        this.allFeriados = rawData.map((feriado: any) => ({
-          title: feriado.title || feriado.name || 'Feriado',
-          start: feriado.date,
+        this.allFeriados = raw.map((f: any) => ({
+          title: f.title || f.name || 'Feriado',
+          start: f.date,
           allDay: true,
           color: '#a9a9a9',
         }));
@@ -86,13 +118,9 @@ export class CalendarPage implements OnInit, OnDestroy {
           dateClick: this.handleDateClick.bind(this),
           datesSet: this.handleMonthChange.bind(this),
         };
-        // Cargar usuario y tareas del usuario
-        this.initTareasForUser().catch(err => console.warn('initTareasForUser error', err));
 
+        this.initTareasForUser();
         this.updateEventosMes(new Date());
-      },
-      error: (error) => {
-        console.error('Error cargando feriados:', error);
       },
       complete: () => {
         this.loading = false;
@@ -101,248 +129,147 @@ export class CalendarPage implements OnInit, OnDestroy {
     });
   }
 
-  // Inicializa tareas del usuario y suscripción al observable
+  /* ================================
+     TAREAS DEL USUARIO
+  ================================= */
   private async initTareasForUser() {
     const usuario = await this.usuarioService.getUsuarioActivo();
     if (!usuario?.id) return;
+
     this.usuarioId = usuario.id;
 
-    // Obtener tareas iniciales (asegura que el servicio cargue de DB)
-    try {
-      await this.tareasService.obtenerTareas(this.usuarioId);
-    } catch (e) {
-      console.warn('Error obteniendo tareas iniciales', e);
-    }
+    await this.tareasService.obtenerTareas(this.usuarioId).catch(() => {});    
 
-    // Suscribirse a cambios en tareas
     this.tareasSub = this.tareasService.getTareasObservable().subscribe((tareas: Tarea[]) => {
+
       this.tareasEventos = (tareas || []).map(t => ({
         title: t.titulo || 'Tarea',
         start: t.fecha,
         allDay: true,
         extendedProps: { tarea: t },
-        color: t.importancia === 'alta' ? '#ff5c5c' : (t.importancia === 'media' ? '#ffb86b' : '#8be08b')
+        color:
+          t.importancia === 'alta' ? '#ff5c5c' :
+          t.importancia === 'media' ? '#ffb86b' :
+          '#8be08b'
       }));
 
-      // Combinar feriados + tareas y actualizar calendario
       this.combinedEvents = [...this.allFeriados, ...this.tareasEventos];
-      const calendarApi = this.fullCalendar?.getApi?.();
-      if (calendarApi) {
-        calendarApi.removeAllEvents();
-        calendarApi.addEventSource(this.combinedEvents);
-        this.updateEventosMes(calendarApi.getDate());
+
+      const api = this.fullCalendar?.getApi?.();
+      if (api) {
+        api.removeAllEvents();
+        api.addEventSource(this.combinedEvents);
+        this.updateEventosMes(api.getDate());
       }
 
       this.calendarReady = true;
     });
   }
 
-  // NEW: inicializar geolocalización y watch
-  private async initClima() {
-    console.log('[CalendarPage] initClima');
-
-    // Pedir permisos
-    try {
-      const perm: any = await Geolocation.requestPermissions();
-      const granted = perm?.location === 'granted' || perm === 'granted';
-      console.log('[CalendarPage] permiso ubicación:', perm);
-      if (!granted) {
-        console.warn('Permiso de ubicación denegado', perm);
-        return;
-      }
-    } catch (e) {
-      console.warn('requestPermissions error', e);
-    }
-
-    // Obtener clima inicial
-    try {
-      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true }).catch(() => null);
-      if (pos?.coords) {
-        this.fetchWeather(pos.coords.latitude, pos.coords.longitude);
-      } else {
-        console.log('[CalendarPage] getCurrentPosition no disponible (web/emulador)');
-      }
-    } catch (e) {
-      console.error('Error al obtener posición inicial', e);
-    }
-
-    // *** OPCIONAL: refrescar cada 30 min ***
-    setInterval(() => {
-      this.updateWeatherOnce();
-    }, 30 * 60 * 1000); // 30 minutos
-  }
-
-  //Método pequeño para refrescar clima
-  private async updateWeatherOnce() {
-    try {
-      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-      if (pos?.coords) {
-        this.fetchWeather(pos.coords.latitude, pos.coords.longitude);
-      }
-    } catch {}
-  }
-
-  //obtener clima usando el servicio existente
-  private fetchWeather(lat: number, lon: number) {
-    console.log('[CalendarPage] fetchWeather', lat, lon);
-
-    this.climaService.getWeatherByCoords(lat, lon).subscribe({
-      next: (data: any) => {
-        console.log('[CalendarPage] weather data', data);
-
-        this.weatherData = data;
-        this.tryShowHeader();
-      },
-
-      error: (error: any) => {
-        console.error('Error al obtener clima', error);
-      }
-    });
-  }
-
+  /* ================================
+     CLICK EN UN DÍA
+  ================================= */
   handleDateClick(arg: any) {
     const fecha = arg.dateStr;
-
-    // Convertir a Date para comparar
     const d = new Date(fecha);
 
-    // Buscar feriados
     const feriados = this.allFeriados.filter(f => {
       const fd = new Date(f.start);
-      return (
-        fd.getFullYear() === d.getFullYear() &&
-        fd.getMonth() === d.getMonth() &&
-        fd.getDate() === d.getDate()
-      );
+      return fd.toDateString() === d.toDateString();
     });
 
-    // Buscar tareas
     const tareas = this.tareasEventos.filter(t => {
       const td = new Date(t.start);
-      return (
-        td.getFullYear() === d.getFullYear() &&
-        td.getMonth() === d.getMonth() &&
-        td.getDate() === d.getDate()
-      );
+      return td.toDateString() === d.toDateString();
     });
 
-    // Guardar en variables que usará el modal
     this.eventosDelDia = [...feriados, ...tareas];
     this.fechaSeleccionada = fecha;
-
-    this.mostrarModal = true; // Abre el modal
+    this.mostrarModal = true;
   }
 
+  /* ================================
+     CAMBIO DE MES
+  ================================= */
   handleMonthChange(arg: any) {
-    const mitadRango = new Date((arg.start.getTime() + arg.end.getTime()) / 2);
-    this.annio = mitadRango.getFullYear();
-    console.log('Año actual del calendario:', this.annio);
-    
-    //cargar feriados del año si cambiamos de año
-    this.feriadosService.obtenerFeriados(this.annio).subscribe({
-      next: (data) => {
-        const rawData = Array.isArray(data)
-          ? data
-          : data?.data
-          ? data.data
-          : data[this.annio] || [];
+    const mitad = new Date((arg.start.getTime() + arg.end.getTime()) / 2);
+    this.annio = mitad.getFullYear();
 
-        this.allFeriados = rawData.map((feriado: any) => ({
-          title: feriado.title || feriado.name || 'Feriado',
-          start: feriado.date,
-          allDay: true,
-          color: '#a9a9a9',
-        }));
-        const calendarApi = this.fullCalendar.getApi();
-        this.combinedEvents = [...this.allFeriados, ...this.tareasEventos];
-        calendarApi.removeAllEvents();
-        calendarApi.addEventSource(this.combinedEvents);
-        this.updateEventosMes(mitadRango);
-      },
-      error: (error) => console.error('Error cargando feriados:', error)
-    });
-    
-    this.updateTituloMes(mitadRango);
+    this.updateTituloMes(mitad);
+    this.updateEventosMes(mitad);
   }
 
   updateEventosMes(fecha: Date) {
     const mes = fecha.getMonth();
     const anio = fecha.getFullYear();
 
-    // Feriados del mes
-    this.eventosFeriadosMes = this.allFeriados.filter((e) => {
-      const d = new Date(e.start);
+    this.eventosFeriadosMes = this.allFeriados.filter(ev => {
+      const d = new Date(ev.start);
       return d.getMonth() === mes && d.getFullYear() === anio;
     });
 
-    // Tareas del mes
-    this.tareasMes = this.tareasEventos.filter((t) => {
-      const d = new Date(t.start);
+    this.tareasMes = this.tareasEventos.filter(ev => {
+      const d = new Date(ev.start);
       return d.getMonth() === mes && d.getFullYear() === anio;
     });
 
-    // Si quieres mantener la lista combinada
     this.eventosMes = [...this.eventosFeriadosMes, ...this.tareasMes];
   }
 
   updateTituloMes(fecha: Date) {
-    const opciones: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+    const opciones = { month: 'long', year: 'numeric' } as const;
     let texto = fecha.toLocaleDateString('es-ES', opciones);
     texto = texto.replace(' de ', ' ');
     this.tituloMes = texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 
-  //detectar swipe manualmente
-  onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.changedTouches[0].screenX;
+  /* ================================
+     SWIPE PARA CAMBIAR MES
+  ================================= */
+  onTouchStart(e: TouchEvent) {
+    this.touchStartX = e.changedTouches[0].screenX;
   }
 
-  onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].screenX;
+  onTouchEnd(e: TouchEvent) {
+    this.touchEndX = e.changedTouches[0].screenX;
     this.handleSwipe();
   }
 
   handleSwipe() {
-    const calendarApi: CalendarApi | undefined = this.fullCalendar?.getApi?.();
-    if (!calendarApi) return;
+    const api = this.fullCalendar?.getApi?.();
+    if (!api) return;
 
     const diff = this.touchEndX - this.touchStartX;
     if (Math.abs(diff) < 60) return;
 
-    if (diff > 0) {
-      calendarApi.prev();
-    } else {
-      calendarApi.next();
-    }
+    if (diff > 0) api.prev();
+    else api.next();
 
-    const fechaActual = calendarApi.getDate();
-    this.updateEventosMes(fechaActual);
-    this.updateTituloMes(fechaActual);
+    const fecha = api.getDate();
+    this.updateEventosMes(fecha);
+    this.updateTituloMes(fecha);
   }
 
+  /* ================================
+     UTILIDADES
+  ================================= */
   formatFecha(fecha: string | Date): string {
     const date = new Date(fecha);
-    const opciones: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-    let texto = date.toLocaleDateString('es-ES', opciones);
-    texto = texto.replace(',', '');
+    const opciones = { weekday: 'long', day: 'numeric', month: 'long' } as const;
 
-    texto = texto
+    let texto = date.toLocaleDateString('es-ES', opciones).replace(',', '');
+    return texto
       .split(' ')
-      .map(word => word === 'de' ? word : word.charAt(0).toUpperCase() + word.slice(1))
+      .map(w => (w === 'de' ? w : w.charAt(0).toUpperCase() + w.slice(1)))
       .join(' ');
-
-    return texto;
   }
 
-  ngOnDestroy(): void {
+  /* ================================
+     LIMPIEZA DE SUBSCRIPCIONES
+  ================================= */
+  ngOnDestroy() {
     if (this.tareasSub) {
       try { this.tareasSub.unsubscribe(); } catch {}
-      this.tareasSub = null;
     }
-  }
-
-  private tryShowHeader() {
-    // El header aparece siempre, incluso si el clima no ha cargado
-    this.headerReady = true;
   }
 }
