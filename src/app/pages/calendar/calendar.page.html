@@ -1,60 +1,60 @@
-<ion-header>
+<ion-header class="header-fixed">
   <ion-toolbar>
     <div class="welcome-card">
       <ion-title>Calendario</ion-title>
-      <h2 class="calendar-title" style="font-size: 0.9rem;">Hoy, {{ diaActual }}</h2>
+      <h2 class="calendar-title">Hoy, {{ diaActual }}</h2>
     </div>
 
-      <div class="weather-info" *ngIf="weatherData" slot="end">
-        <div class="weather-title">Clima en</div>
-        <div class="weather-title">{{ weatherData.location?.name ?? '...' }}</div>
-        <div class="weather-line">Temperatura: {{ weatherData.current?.temp_c ?? '—' }}°C</div>
-        <div class="weather-line">Condiciones: {{ weatherData.current?.condition?.text ?? '—' }}</div>
-      </div>
+    <!-- Clima (solo este hace fade) -->
+    <div class="weather-info fade-weather" [class.ready]="weatherData" slot="end">
+      <div class="weather-title">Clima en</div>
+      <div class="weather-title">{{ weatherData?.location?.name }}</div>
+      <div class="weather-line">Temperatura: {{ weatherData?.current?.temp_c }}°C</div>
+      <div class="weather-line">Condiciones: {{ weatherData?.current?.condition?.text }}</div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="!loading; else loadingTemplate">
-    <!-- calendario superior -->
-    <div class="calendar-header">
-      <h2 class="ion-text-center" style="color: rgb(92, 92, 92);">{{ tituloMes }}</h2>
-    </div>
+  <div class="calendar-wrapper" [class.ready]="calendarReady">
+    <ng-container *ngIf="!loading; else loadingTemplate">
+      <!-- calendario superior -->
+      <div class="calendar-header">
+        <h2 class="ion-text-center" style="color: rgb(92, 92, 92);">{{ tituloMes }}</h2>
+      </div>
 
-    <div
-      class="calendar-top"
-      (touchstart)="onTouchStart($event)"
-      (touchend)="onTouchEnd($event)"
-    >
-      <full-calendar #fullCalendar [options]="calendarOptions"></full-calendar>
-    </div>
+      <div class="calendar-top" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+        <full-calendar #fullCalendar [options]="calendarOptions"></full-calendar>
+      </div>
 
 
-    <!-- lista de feriados -->
-    <div class="event-list">
-      <h2 style="color: rgb(78, 78, 78);">Feriados del mes</h2>
-      <ion-list lines="none">
-        <ion-item *ngFor="let evento of eventosFeriadosMes" class="event-item">
-          <ion-label>
-            <h3 style="color: rgb(107, 107, 107); font-weight: 600;">{{ evento.title }}</h3>
-            <p style="color: rgb(119, 119, 119);">{{ formatFecha(evento.start) }}</p>
-          </ion-label>
-          <ion-icon name="calendar-outline" color="danger" slot="end"></ion-icon>
-        </ion-item>
-      </ion-list>
+      <!-- lista de feriados -->
+      <div class="event-list">
+        <h2 style="color: rgb(78, 78, 78);">Feriados del mes</h2>
+        <ion-list lines="none">
+          <ion-item *ngFor="let evento of eventosFeriadosMes" class="event-item">
+            <ion-label>
+              <h3 style="color: rgb(107, 107, 107); font-weight: 600;">{{ evento.title }}</h3>
+              <p style="color: rgb(119, 119, 119);">{{ formatFecha(evento.start) }}</p>
+            </ion-label>
+            <ion-icon name="calendar-outline" color="danger" slot="end"></ion-icon>
+          </ion-item>
+        </ion-list>
 
-      <h2 style="color: rgb(78, 78, 78); margin-top: 16px;">Tareas del mes</h2>
-      <ion-list lines="none">
-        <ion-item *ngFor="let tarea of tareasMes" class="event-item">
-          <ion-label>
-            <h3 style="color: rgb(107, 107, 107); font-weight: 600;">{{ tarea.title }}</h3>
-            <p style="color: rgb(119, 119, 119);">{{ formatFecha(tarea.start) }}</p>
-          </ion-label>
-          <ion-badge slot="end" [style.background]="tarea.color" style="color: white;">{{ (tarea.extendedProps?.tarea?.importancia || 'Tarea') | titlecase }}</ion-badge>
-        </ion-item>
-      </ion-list>
-    </div>
-  </ng-container>
+        <h2 style="color: rgb(78, 78, 78); margin-top: 16px;">Tareas del mes</h2>
+        <ion-list lines="none">
+          <ion-item *ngFor="let tarea of tareasMes" class="event-item">
+            <ion-label>
+              <h3 style="color: rgb(107, 107, 107); font-weight: 600;">{{ tarea.title }}</h3>
+              <p style="color: rgb(119, 119, 119);">{{ formatFecha(tarea.start) }}</p>
+            </ion-label>
+            <ion-badge slot="end" [style.background]="tarea.color" style="color: white;">{{
+              (tarea.extendedProps?.tarea?.importancia || 'Tarea') | titlecase }}</ion-badge>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ng-container>
+  </div>
 
   <!-- animacion de carga -->
   <ng-template #loadingTemplate>
@@ -66,12 +66,8 @@
 </ion-content>
 
 <!-- MODAL DE EVENTOS DEL DÍA -->
-<ion-modal 
-  [isOpen]="mostrarModal" 
-  (didDismiss)="mostrarModal = false"
-  initial-breakpoint="0.35"
-  breakpoints="0, 0.35, 0.6, 0.9"
->
+<ion-modal [isOpen]="mostrarModal" (didDismiss)="mostrarModal = false" initial-breakpoint="0.35"
+  [breakpoints]="[0, 0.35, 0.6, 0.9]">
   <ng-template>
     <ion-header>
       <ion-toolbar color="primary">
@@ -90,9 +86,7 @@
         No hay eventos para este día.
       </div>
 
-      <div *ngFor="let e of eventosDelDia"
-           class="evento-item"
-           [style.background]="e.color || '#999'">
+      <div *ngFor="let e of eventosDelDia" class="evento-item" [style.background]="e.color || '#999'">
         <strong>{{ e.title }}</strong>
       </div>
 

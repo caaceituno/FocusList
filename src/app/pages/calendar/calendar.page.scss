@@ -63,6 +63,7 @@ ion-content {
   line-height: 1.1;
   background: #fbb03c;
   margin-top: 25px;
+  min-height: 50px;
 }
 
 .weather-title {
@@ -298,4 +299,28 @@ ion-footer {
   color: #666;
   font-size: 16px;
   margin-top: 20px;
+}
+.calendar-wrapper {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Cuando esté lista, aparece con fade-in */
+.calendar-wrapper.ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.header-fixed {
+  background: #fbb03c !important;
+}
+
+.fade-weather {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.fade-weather.ready {
+  opacity: 1;
 }

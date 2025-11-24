@@ -29,6 +29,10 @@ export class CalendarPage implements OnInit, OnDestroy {
   annio: number = new Date().getFullYear();
   eventosFeriadosMes: any[] = [];
   tareasMes: any[] = [];
+  calendarReady = false;
+  headerReady = false;
+  private climaLoaded = false;
+  private headerTimeout: any;
 
   // ADDED: clima state
   weatherData: any = null;
@@ -92,6 +96,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       },
       complete: () => {
         this.loading = false;
+        this.calendarReady = true;
       }
     });
   }
@@ -127,6 +132,8 @@ export class CalendarPage implements OnInit, OnDestroy {
         calendarApi.addEventSource(this.combinedEvents);
         this.updateEventosMes(calendarApi.getDate());
       }
+
+      this.calendarReady = true;
     });
   }
 
@@ -178,11 +185,15 @@ export class CalendarPage implements OnInit, OnDestroy {
   //obtener clima usando el servicio existente
   private fetchWeather(lat: number, lon: number) {
     console.log('[CalendarPage] fetchWeather', lat, lon);
+
     this.climaService.getWeatherByCoords(lat, lon).subscribe({
       next: (data: any) => {
         console.log('[CalendarPage] weather data', data);
+
         this.weatherData = data;
+        this.tryShowHeader();
       },
+
       error: (error: any) => {
         console.error('Error al obtener clima', error);
       }
@@ -328,5 +339,10 @@ export class CalendarPage implements OnInit, OnDestroy {
       try { this.tareasSub.unsubscribe(); } catch {}
       this.tareasSub = null;
     }
+  }
+
+  private tryShowHeader() {
+    // El header aparece siempre, incluso si el clima no ha cargado
+    this.headerReady = true;
   }
 }
