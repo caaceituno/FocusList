@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController, Platform } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { UsuarioService } from '../../services/registro/usuario.service';
 import { Login } from '../../interfaces/login';
-import { Dbservice } from 'src/app/services/SQLite/dbservice';
 
 
 @Component({
@@ -22,23 +21,10 @@ export class LoginPage implements OnInit {
   constructor(
     private router: Router,
     private toastController: ToastController,
-    private usuarioService: UsuarioService,
-    private platform: Platform
+    private usuarioService: UsuarioService
   ) { }
 
   async ngOnInit() {
-    if (!this.platform.is('cordova')) {
-      // Estamos en PC → Saltar login
-      await this.usuarioService.setUsuarioActivo({
-        id: 1,
-        nombre: 'DevUser',
-        apellido: 'Local',
-        email: 'dev@local',
-        contrasena: '1234'
-      });
-
-      this.router.navigate(['/home']);
-    }
   }
 
   async iniciarSesion() {

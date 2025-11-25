@@ -103,7 +103,8 @@ export class CalendarPage implements OnInit, OnDestroy {
 
         this.allFeriados = raw.map((f: any) => ({
           title: f.title || f.name || 'Feriado',
-          start: f.date,
+          // Normalize to local Date to avoid timezone shifts when parsing 'YYYY-MM-DD'
+          start: this.parseDateToLocal(f.date),
           allDay: true,
           color: '#a9a9a9',
         }));
@@ -144,7 +145,8 @@ export class CalendarPage implements OnInit, OnDestroy {
 
       this.tareasEventos = (tareas || []).map(t => ({
         title: t.titulo || 'Tarea',
-        start: t.fecha,
+        // Stored in DB as 'YYYY-MM-DD' — convert to local Date object
+        start: this.parseDateToLocal(t.fecha),
         allDay: true,
         extendedProps: { tarea: t },
         color:
@@ -171,15 +173,15 @@ export class CalendarPage implements OnInit, OnDestroy {
   ================================= */
   handleDateClick(arg: any) {
     const fecha = arg.dateStr;
-    const d = new Date(fecha);
+    const d = this.parseDateToLocal(fecha);
 
     const feriados = this.allFeriados.filter(f => {
-      const fd = new Date(f.start);
+      const fd = this.parseDateToLocal(f.start);
       return fd.toDateString() === d.toDateString();
     });
 
     const tareas = this.tareasEventos.filter(t => {
-      const td = new Date(t.start);
+      const td = this.parseDateToLocal(t.start);
       return td.toDateString() === d.toDateString();
     });
 
@@ -204,12 +206,12 @@ export class CalendarPage implements OnInit, OnDestroy {
     const anio = fecha.getFullYear();
 
     this.eventosFeriadosMes = this.allFeriados.filter(ev => {
-      const d = new Date(ev.start);
+      const d = this.parseDateToLocal(ev.start);
       return d.getMonth() === mes && d.getFullYear() === anio;
     });
 
     this.tareasMes = this.tareasEventos.filter(ev => {
-      const d = new Date(ev.start);
+      const d = this.parseDateToLocal(ev.start);
       return d.getMonth() === mes && d.getFullYear() === anio;
     });
 
@@ -253,6 +255,36 @@ export class CalendarPage implements OnInit, OnDestroy {
   /* ================================
      UTILIDADES
   ================================= */
+  private parseDateToLocal(fecha: any): Date {
+    if (!fecha) return new Date();
+
+    // If already a Date
+    if (fecha instanceof Date) {
+      return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+    }
+
+    const s = String(fecha);
+
+    // ISO with time (e.g. 2025-11-25T00:00:00)
+    if (s.includes('T')) {
+      const d = new Date(s);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    // SQLite format YYYY-MM-DD
+    if (s.includes('-')) {
+      const partes = s.split('-');
+      const y = Number(partes[0]);
+      const m = Number(partes[1]) - 1;
+      const day = Number(partes[2]);
+      return new Date(y, m, day);
+    }
+
+    // Fallback
+    const d = new Date(s);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
   formatFecha(fecha: string | Date): string {
     const date = new Date(fecha);
     const opciones = { weekday: 'long', day: 'numeric', month: 'long' } as const;
